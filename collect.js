@@ -73,33 +73,26 @@ async function details(ids, cc) {
   return (v.items || []).map(i => build(i, chMap, cc));
 }
 
-// 최근 급상승 프록시 — 검색 파라미터 조합을 순서대로 시도하고, 결과가 나오는 조합을 채택
+// 최근 급상승 프록시 — 검색 API가 q 없는 요청에 결과를 주지 않으므로(2025년 트렌딩 폐지 이후),
+// 언어별로 거의 모든 제목에 등장하는 초광역 OR 검색어를 넣어 전체 커버리지를 근사한다.
 const H = 3600e3;
 const iso = t => new Date(t).toISOString().replace(/\.\d{3}Z$/, 'Z');
-const VARIANTS = [
-  { name: '48h+region+lang', p: (cc, lang) => ({ order: 'viewCount', publishedAfter: iso(now - 48 * H), regionCode: cc, relevanceLanguage: lang }) },
-  { name: '48h+region',      p: (cc)       => ({ order: 'viewCount', publishedAfter: iso(now - 48 * H), regionCode: cc }) },
-  { name: '7d+region',       p: (cc)       => ({ order: 'viewCount', publishedAfter: iso(now - 7 * 24 * H), regionCode: cc }) },
-  { name: '7d+lang',         p: (cc, lang) => ({ order: 'viewCount', publishedAfter: iso(now - 7 * 24 * H), relevanceLanguage: lang }) },
-  { name: '30d+region',      p: (cc)       => ({ order: 'viewCount', publishedAfter: iso(now - 30 * 24 * H), regionCode: cc }) }
-];
-let winner = -1; // 첫 성공 조합을 기억해서 다음 국가부터는 그것부터 시도 (쿼터 절약)
+const BROAD_Q = {
+  ko: '이|의|는|하|고', en: 'a|the|i|to|you', ja: 'の|は|が|に|と', hi: 'है|के|का|की',
+  id: 'yang|di|dan|ini', pt: 'de|que|o|e|um', vi: 'của|và|là|có'
+};
 
 async function collectHot(cc, lang) {
-  const tryOrder = winner >= 0
-    ? [winner, ...VARIANTS.keys()].filter((v, i, a) => a.indexOf(v) === i)
-    : [...VARIANTS.keys()];
-  for (const i of tryOrder) {
-    let s;
-    try {
-      s = await api('search', { part: 'snippet', type: 'video', maxResults: '25', ...VARIANTS[i].p(cc, lang) }, 100);
-    } catch (e) { console.log(`  search[${VARIANTS[i].name}] ${cc}: 에러 - ${e.message}`); continue; }
+  const q = BROAD_Q[lang] || BROAD_Q.en;
+  for (const hours of [48, 7 * 24]) {
+    const s = await api('search', {
+      part: 'snippet', type: 'video', maxResults: '25', q,
+      order: 'viewCount', publishedAfter: iso(now - hours * H),
+      regionCode: cc, relevanceLanguage: lang
+    }, 100);
     const ids = (s.items || []).map(x => x.id.videoId).filter(Boolean);
-    console.log(`  search[${VARIANTS[i].name}] ${cc}: ${ids.length}개`);
-    if (ids.length) {
-      if (winner < 0) { winner = i; console.log(`  → 채택된 검색 조합: ${VARIANTS[i].name}`); }
-      return details(ids, cc);
-    }
+    console.log(`  search[q, ${hours}h] ${cc}: ${ids.length}개`);
+    if (ids.length) return details(ids, cc);
   }
   return [];
 }
