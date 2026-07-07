@@ -73,14 +73,35 @@ async function details(ids, cc) {
   return (v.items || []).map(i => build(i, chMap, cc));
 }
 
-// 최근 48시간 최다 조회 (급상승 프록시)
+// 최근 급상승 프록시 — 검색 파라미터 조합을 순서대로 시도하고, 결과가 나오는 조합을 채택
+const H = 3600e3;
+const iso = t => new Date(t).toISOString().replace(/\.\d{3}Z$/, 'Z');
+const VARIANTS = [
+  { name: '48h+region+lang', p: (cc, lang) => ({ order: 'viewCount', publishedAfter: iso(now - 48 * H), regionCode: cc, relevanceLanguage: lang }) },
+  { name: '48h+region',      p: (cc)       => ({ order: 'viewCount', publishedAfter: iso(now - 48 * H), regionCode: cc }) },
+  { name: '7d+region',       p: (cc)       => ({ order: 'viewCount', publishedAfter: iso(now - 7 * 24 * H), regionCode: cc }) },
+  { name: '7d+lang',         p: (cc, lang) => ({ order: 'viewCount', publishedAfter: iso(now - 7 * 24 * H), relevanceLanguage: lang }) },
+  { name: '30d+region',      p: (cc)       => ({ order: 'viewCount', publishedAfter: iso(now - 30 * 24 * H), regionCode: cc }) }
+];
+let winner = -1; // 첫 성공 조합을 기억해서 다음 국가부터는 그것부터 시도 (쿼터 절약)
+
 async function collectHot(cc, lang) {
-  const pub = new Date(now - 48 * 3600e3).toISOString();
-  const s = await api('search', {
-    part: 'snippet', type: 'video', order: 'viewCount', publishedAfter: pub,
-    regionCode: cc, relevanceLanguage: lang, maxResults: '25', safeSearch: 'none'
-  }, 100);
-  return details((s.items || []).map(i => i.id.videoId).filter(Boolean), cc);
+  const tryOrder = winner >= 0
+    ? [winner, ...VARIANTS.keys()].filter((v, i, a) => a.indexOf(v) === i)
+    : [...VARIANTS.keys()];
+  for (const i of tryOrder) {
+    let s;
+    try {
+      s = await api('search', { part: 'snippet', type: 'video', maxResults: '25', ...VARIANTS[i].p(cc, lang) }, 100);
+    } catch (e) { console.log(`  search[${VARIANTS[i].name}] ${cc}: 에러 - ${e.message}`); continue; }
+    const ids = (s.items || []).map(x => x.id.videoId).filter(Boolean);
+    console.log(`  search[${VARIANTS[i].name}] ${cc}: ${ids.length}개`);
+    if (ids.length) {
+      if (winner < 0) { winner = i; console.log(`  → 채택된 검색 조합: ${VARIANTS[i].name}`); }
+      return details(ids, cc);
+    }
+  }
+  return [];
 }
 
 // 공식 인기 차트 (음악·영화·게임)
