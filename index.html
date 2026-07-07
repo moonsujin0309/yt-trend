@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>유튜브 글로벌 트렌드 분석</title>
+<style>
+:root{
+  --bg:#0f1117; --panel:#181c26; --panel2:#1f2432; --line:#2a3040;
+  --txt:#e8ecf4; --sub:#9aa3b5; --accent:#ff4d6d; --accent2:#4dabff;
+  --good:#3ddc84; --warn:#ffb74d; --chip:#252b3b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI','Malgun Gothic',sans-serif;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:8px}
+header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header h1{font-size:20px;font-weight:700}
+header h1 span{color:var(--accent)}
+.hsub{color:var(--sub);font-size:13px}
+.spacer{flex:1}
+.iconbtn{background:var(--chip);color:var(--txt);padding:8px 14px;font-size:13px}
+.iconbtn:hover{background:#303850}
+
+/* ---------- 설정(온보딩) ---------- */
+#setup{max-width:640px;margin:40px auto;padding:0 20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:18px}
+.card h2{font-size:17px;margin-bottom:12px}
+.card ol{margin:10px 0 10px 22px;color:var(--sub);font-size:14px}
+.card ol li{margin-bottom:8px}
+.card ol b{color:var(--txt)}
+.keyrow{display:flex;gap:10px;margin-top:14px}
+.keyrow input{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;color:var(--txt);font-size:14px}
+.primary{background:var(--accent);color:#fff;padding:12px 22px;font-size:14px;font-weight:600}
+.primary:hover{filter:brightness(1.1)}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--sub);padding:12px 18px;font-size:13px}
+.ghost:hover{color:var(--txt);border-color:var(--sub)}
+.note{font-size:12.5px;color:var(--sub);margin-top:12px;padding:10px 12px;background:var(--panel2);border-radius:8px}
+.err{color:var(--accent);font-size:13px;margin-top:10px;display:none}
+#pendingBanner{background:#332a14;border:1px solid var(--warn);color:#ffd9a0;padding:14px 18px;border-radius:12px;font-size:13.5px;margin-bottom:18px;display:none}
+
+/* ---------- 툴바 ---------- */
+#app{max-width:1200px;margin:0 auto;padding:18px 20px 60px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.chip{background:var(--chip);color:var(--sub);padding:7px 13px;border-radius:20px;font-size:13px;border:1px solid transparent}
+.chip.on{background:#2b3350;color:var(--txt);border-color:var(--accent2)}
+.chip:hover{color:var(--txt)}
+select{background:var(--chip);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.tab{background:transparent;color:var(--sub);padding:8px 16px;font-size:14px;border-radius:8px}
+.tab.on{background:var(--panel2);color:var(--txt);font-weight:600}
+.divider{width:1px;height:22px;background:var(--line);margin:0 4px}
+
+/* ---------- 인사이트 ---------- */
+#insight{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.ins{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.ins .k{font-size:12px;color:var(--sub);margin-bottom:4px}
+.ins .v{font-size:19px;font-weight:700}
+.ins .v small{font-size:12px;color:var(--sub);font-weight:400}
+
+/* ---------- 키워드 ---------- */
+#kwbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+#kwbox .k{font-size:12px;color:var(--sub);margin-bottom:8px}
+#kwlist{display:flex;flex-wrap:wrap;gap:7px}
+.kw{background:var(--chip);padding:5px 11px;border-radius:16px;font-size:13px;color:var(--txt)}
+.kw small{color:var(--sub);margin-left:4px}
+.kw.on{background:var(--accent);color:#fff}
+.kw.on small{color:#ffd}
+
+/* ---------- 카드 그리드 ---------- */
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.vc{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.vc .thumb{position:relative;display:block}
+.vc .thumb img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#000}
+.badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.72);padding:3px 9px;border-radius:6px;font-size:12px}
+.badge.sh{left:auto;right:8px;background:var(--accent);color:#fff;font-weight:600}
+.rank{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.72);padding:2px 9px;border-radius:6px;font-size:13px;font-weight:700}
+.vbody{padding:13px 15px 15px;display:flex;flex-direction:column;gap:8px;flex:1}
+.vtitle{font-size:14.5px;font-weight:600;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vch{font-size:12.5px;color:var(--sub)}
+.stats{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--sub)}
+.stats b{color:var(--txt);font-weight:600}
+.label{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:8px;width:fit-content}
+.l-rocket{background:#3a1522;color:#ff7d95}
+.l-algo{background:#14283f;color:#6db8ff}
+.l-bal{background:#26301f;color:#a8d97f}
+.l-fan{background:#332a14;color:#ffc76b}
+.l-na{background:var(--chip);color:var(--sub)}
+.why{font-size:12.5px;color:var(--sub);border-top:1px dashed var(--line);padding-top:8px;margin-top:auto}
+.why b{color:var(--txt)}
+.delta{font-size:12px;color:var(--good)}
+
+/* ---------- 기타 ---------- */
+#loading{text-align:center;padding:60px 0;color:var(--sub);display:none}
+.spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;margin:0 auto 14px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#2b1a1f;border:1px solid var(--accent);color:#ffb3c1;padding:12px 20px;border-radius:10px;font-size:13.5px;display:none;max-width:90%;z-index:50}
+footer{max-width:1200px;margin:0 auto;padding:10px 20px 30px;color:var(--sub);font-size:12px;display:flex;gap:16px;flex-wrap:wrap}
+dialog{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:24px;max-width:480px;width:92%}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h3{margin-bottom:14px}
+dialog .keyrow{margin-bottom:10px}
+.demo-banner{background:#2b2340;border:1px solid #6d5bd0;color:#c9bfff;padding:10px 16px;border-radius:10px;font-size:13px;margin-bottom:14px;display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📊 유튜브 <span>글로벌 트렌드</span> 분석</h1>
+  <div class="hsub" id="lastUpdate"></div>
+  <div class="spacer"></div>
+  <button class="iconbtn" id="btnRefresh" style="display:none">🔄 새로고침</button>
+  <button class="iconbtn" id="btnSettings" style="display:none">⚙️ 설정</button>
+</header>
+
+<!-- ============ 온보딩 (로컬 파일로 열었을 때만) ============ -->
+<div id="setup">
+  <div id="pendingBanner">⏳ <b>아직 첫 자동 수집 전이에요.</b> 저장소의 Settings → Secrets and variables → Actions에 <b>YT_API_KEY</b>를 등록하고, Actions 탭에서 <b>collect</b> 워크플로를 한 번 실행하면 데이터가 나타나요. (이후엔 6시간마다 자동)</div>
+  <div class="card">
+    <h2>🔑 무료 API 키가 필요해요 (5분, 무료)</h2>
+    <ol>
+      <li><a href="https://console.cloud.google.com/" target="_blank"><b style="color:var(--accent2)">console.cloud.google.com</b></a>에 구글 계정으로 로그인</li>
+      <li>상단에서 <b>프로젝트 만들기</b> (이름은 아무거나, 예: my-trend)</li>
+      <li>☰ 메뉴 → <b>API 및 서비스 → 라이브러리</b> → "<b>YouTube Data API v3</b>" 검색 → <b>사용 설정</b></li>
+      <li>☰ 메뉴 → <b>API 및 서비스 → 사용자 인증 정보</b> → <b>+ 사용자 인증 정보 만들기 → API 키</b></li>
+      <li>생성된 키(AIza로 시작)를 복사해서 아래에 붙여넣기</li>
+    </ol>
+    <div class="keyrow">
+      <input id="keyInput" type="password" placeholder="AIza... 여기에 붙여넣기" autocomplete="off">
+      <button class="primary" id="btnSaveKey">저장하고 시작</button>
+    </div>
+    <div class="err" id="keyErr"></div>
+    <div class="note">
+      💡 키는 이 컴퓨터의 브라우저에만 저장되고 외부로 전송되지 않아요.<br>
+      💡 키 만들 때 "키 제한" 설정은 하지 마세요 (제한 없음 상태여야 파일에서 작동).<br>
+      💡 무료 한도는 하루 10,000포인트 — 이 사이트 기준 하루 30번 이상 새로고침 가능한 양이에요.<br>
+      💡 <b style="color:var(--good)">결제수단(카드)을 등록하지 않는 한 과금은 원천적으로 불가능</b>해요. 한도를 넘으면 요금이 나가는 게 아니라 그냥 멈추고, 이 사이트도 한도 직전에 자동으로 새로고침을 차단해요.
+    </div>
+  </div>
+  <div class="card">
+    <h2>👀 키 없이 화면만 구경하기</h2>
+    <p style="color:var(--sub);font-size:14px;margin-bottom:12px">가짜 예시 데이터로 어떤 분석이 나오는지 미리 볼 수 있어요.</p>
+    <button class="ghost" id="btnDemo">🔍 데모 데이터로 미리보기</button>
+  </div>
+</div>
+
+<!-- ============ 메인 앱 ============ -->
+<div id="app" style="display:none">
+  <div class="demo-banner" id="demoBanner">🧪 지금 보시는 건 <b>가짜 예시 데이터</b>예요. 실제 데이터를 보려면 ⚙️ 설정에서 API 키를 넣어주세요.</div>
+
+  <div class="bar" id="chipsBar">
+    <span style="font-size:13px;color:var(--sub)">국가:</span>
+    <span id="countryChips"></span>
+  </div>
+
+  <div class="bar">
+    <select id="selSource">
+      <option value="hot">🔥 최근 48시간 급상승 (추천)</option>
+      <option value="chart">🏆 공식 차트 (음악·영화·게임)</option>
+    </select>
+    <div class="divider"></div>
+    <select id="selFormat">
+      <option value="all">전체 영상</option>
+      <option value="shorts">쇼츠만 (3분 이하)</option>
+      <option value="long">롱폼만</option>
+    </select>
+    <select id="selSort">
+      <option value="views">조회수 순</option>
+      <option value="vph">시간당 조회수 순 (급상승 속도)</option>
+      <option value="ratio">구독자 대비 배율 순 (알고리즘 픽)</option>
+      <option value="eng">참여율 순</option>
+    </select>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="insight"></div>
+  <div id="kwbox"><div class="k">🔑 지금 인기 키워드 <span style="opacity:.6">(제목에서 추출 · 클릭하면 해당 영상만 필터)</span></div><div id="kwlist"></div></div>
+  <div id="loading"><div class="spin"></div>데이터를 불러오는 중...</div>
+  <div id="grid"></div>
+</div>
+
+<footer>
+  <span id="quotaInfo"></span>
+  <span>💡 "구독자 대비 N배"가 높을수록 구독자 힘이 아니라 알고리즘 추천으로 뜬 영상이에요 — 신규 유튜버에게 가장 중요한 신호!</span>
+</footer>
+
+<div id="toast"></div>
+
+<dialog id="dlgSettings">
+  <h3>⚙️ 설정</h3>
+  <div class="keyrow"><input id="keyInput2" type="password" placeholder="새 API 키 (AIza...)"><button class="primary" id="btnSaveKey2">키 변경</button></div>
+  <div class="err" id="keyErr2"></div>
+  <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+    <button class="ghost" id="btnClearCache">캐시 비우기</button>
+    <button class="ghost" id="btnClearSnap">조회수 기록 초기화</button>
+    <button class="ghost" id="btnResetAll" style="color:var(--accent)">전체 초기화 (키 포함)</button>
+  </div>
+  <div style="margin-top:16px;text-align:right"><button class="ghost" onclick="dlgSettings.close()">닫기</button></div>
+</dialog>
+
+<script>
+'use strict';
+/* ================= 상수 ================= */
+const LS = {key:'ytt_key', cache:'ytt_cache', snap:'ytt_snap', cfg:'ytt_cfg', quota:'ytt_quota'};
+const COUNTRIES = {
+  KR:{n:'한국',f:'🇰🇷',l:'ko'}, US:{n:'미국',f:'🇺🇸',l:'en'}, JP:{n:'일본',f:'🇯🇵',l:'ja'},
+  GB:{n:'영국',f:'🇬🇧',l:'en'}, DE:{n:'독일',f:'🇩🇪',l:'de'}, FR:{n:'프랑스',f:'🇫🇷',l:'fr'},
+  IN:{n:'인도',f:'🇮🇳',l:'hi'}, BR:{n:'브라질',f:'🇧🇷',l:'pt'}, ID:{n:'인도네시아',f:'🇮🇩',l:'id'},
+  VN:{n:'베트남',f:'🇻🇳',l:'vi'}, TH:{n:'태국',f:'🇹🇭',l:'th'}, TW:{n:'대만',f:'🇹🇼',l:'zh-Hant'},
+  MX:{n:'멕시코',f:'🇲🇽',l:'es'}, ES:{n:'스페인',f:'🇪🇸',l:'es'}, AU:{n:'호주',f:'🇦🇺',l:'en'}, PH:{n:'필리핀',f:'🇵🇭',l:'en'}
+};
+const STOP = new Set(('the,a,an,and,or,of,to,in,on,for,with,is,are,was,be,this,that,it,at,by,from,as,but,not,'+
+ 'you,your,my,we,our,they,he,she,his,her,its,me,vs,ft,feat,official,video,music,mv,live,new,full,best,top,'+
+ 'how,what,when,why,who,all,can,will,just,out,up,so,no,do,does,get,got,one,two,first,last,more,most,very,'+
+ 'ep,part,vol,youtube,shorts,short,de,la,el,en,le,les,und,der,die,das,ka,ki,ke,hai,con,los,del,por,para,'+
+ '그리고,하지만,있는,하는,있다,합니다,입니다,진짜,완전,이거,저거,근데,너무,정말').split(','));
+const CACHE_TTL = 30*60*1000; // 30분
+
+/* ================= 상태 ================= */
+let staticData = null; // 깃허브 자동 수집 데이터 (호스팅 모드)
+let state = {
+  mode: 'key', // 'static' = 깃허브 수집 데이터 사용(키 불필요) / 'key' = 브라우저에서 직접 API 호출
+  key: localStorage.getItem(LS.key) || '',
+  countries: ['KR','US','JP'],
+  source: 'hot', tab: 'ALL', format: 'all', sort: 'views',
+  kw: null, data: {}, demo: false, lastFetch: 0
+};
+try { Object.assign(state, JSON.parse(localStorage.getItem(LS.cfg)||'{}'), {mode:'key', kw:null, data:{}, demo:false}); } catch(e){}
+function saveCfg(){ localStorage.setItem(LS.cfg, JSON.stringify({countries:state.countries, source:state.source, format:state.format, sort:state.sort})); }
+
+/* ================= 유틸 ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmt(n){
+  if(n==null||isNaN(n)) return '-';
+  if(n>=1e8) return (n/1e8).toFixed(1).replace(/\.0$/,'')+'억';
+  if(n>=1e4) return Math.round(n/1e4).toLocaleString()+'만';
+  return Math.round(n).toLocaleString();
+}
+function ago(iso){
+  const h = (Date.now()-new Date(iso).getTime())/3600e3;
+  if(h<1) return '방금 전';
+  if(h<24) return Math.floor(h)+'시간 전';
+  return Math.floor(h/24)+'일 전';
+}
+function parseDur(d){ // ISO8601 → 초
+  const m = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/.exec(d||'');
+  return m ? (+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0) : 0;
+}
+function toast(msg){
+  const t=$('toast'); t.innerHTML=msg; t.style.display='block';
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.style.display='none', 6000);
+}
+
+/* ================= 쿼터 추적 & 무료 한도 차단 (키 모드 전용) ================= */
+const QUOTA_LIMIT = 10000;
+function quotaUsed(){
+  try{
+    const q=JSON.parse(localStorage.getItem(LS.quota)||'{}');
+    return q.date===new Date().toISOString().slice(0,10) ? (q.used||0) : 0;
+  }catch(e){ return 0; }
+}
+function refreshCost(){ return state.countries.length*(state.source==='hot'?102:3); }
+function addQuota(n){
+  const today = new Date().toISOString().slice(0,10);
+  let q; try{ q=JSON.parse(localStorage.getItem(LS.quota)||'{}'); }catch(e){ q={}; }
+  if(q.date!==today) q={date:today, used:0};
+  q.used+=n; localStorage.setItem(LS.quota, JSON.stringify(q));
+  if(state.mode==='static') return;
+  const left=Math.max(0, Math.floor((QUOTA_LIMIT-q.used)/Math.max(1,refreshCost())));
+  $('quotaInfo').textContent = `📉 오늘 무료 한도: ${q.used.toLocaleString()} / 10,000 사용 · 남은 새로고침 약 ${left}회 (한도 도달 시 자동 차단 · 요금 발생 없음)`;
+}
+function quotaBlocked(cost){ return quotaUsed()+cost > QUOTA_LIMIT; }
+
+/* ================= 조회수 스냅샷 (키 모드 전용 · 급상승 추적) ================= */
+let snap; try{ snap=JSON.parse(localStorage.getItem(LS.snap)||'{}'); }catch(e){ snap={}; }
+function trackSnap(id, views){
+  const now=Date.now(), s=snap[id];
+  if(!s){ snap[id]={t:now,v:views}; return null; }
+  if(now-s.t>3600e3){ s.pt=s.t; s.pv=s.v; s.t=now; s.v=views; }
+  if(s.pv!=null && views>s.pv){
+    return {dv:views-s.pv, hrs:(now-s.pt)/3600e3};
+  }
+  return null;
+}
+function saveSnap(){
+  const ids=Object.keys(snap);
+  if(ids.length>600){ ids.sort((a,b)=>snap[a].t-snap[b].t).slice(0,ids.length-600).forEach(id=>delete snap[id]); }
+  localStorage.setItem(LS.snap, JSON.stringify(snap));
+}
+
+/* ================= API (키 모드 전용) ================= */
+async function api(resource, params, cost){
+  const q = new URLSearchParams({...params, key: state.key});
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/${resource}?${q}`);
+  const j = await res.json();
+  if(j.error){
+    const reason = (j.error.errors&&j.error.errors[0]&&j.error.errors[0].reason)||'';
+    if(reason==='quotaExceeded') throw new Error('오늘의 무료 한도(10,000포인트)를 다 썼어요. 내일 오후 4시(태평양 자정)에 리셋됩니다.');
+    if(reason==='accessNotConfigured' || /has not been used in project|is disabled/i.test(j.error.message||'')){
+      const m=/https:\/\/console\.developers\.google\.com\S+/.exec(j.error.message||'');
+      throw new Error('키는 맞는데 프로젝트에서 "YouTube Data API v3"가 아직 사용 설정 전이에요. 안내 3번 단계(라이브러리 → YouTube Data API v3 → 사용 설정)를 완료하고 1~2분 뒤 다시 시도해주세요.'+(m?' 바로가기: '+m[0]:''));
+    }
+    if(/keyInvalid|badRequest/i.test(reason) && resource!=='search') throw new Error('API 키가 올바르지 않아요. ⚙️ 설정에서 다시 확인해주세요.');
+    throw new Error(j.error.message||'API 오류');
+  }
+  addQuota(cost);
+  return j;
+}
+
+function buildVideo(v, chMap, cc){
+  const st=v.statistics||{}, ch=chMap[v.snippet.channelId];
+  const views=+st.viewCount||0, likes=+st.likeCount||0, comments=+st.commentCount||0;
+  let subs=-1;
+  if(ch && ch.statistics && !ch.statistics.hiddenSubscriberCount) subs=+ch.statistics.subscriberCount||0;
+  const hrs=Math.max(1,(Date.now()-new Date(v.snippet.publishedAt).getTime())/3600e3);
+  const dur=parseDur(v.contentDetails&&v.contentDetails.duration);
+  return {
+    id:v.id, title:v.snippet.title, ch:v.snippet.channelTitle,
+    thumb:(v.snippet.thumbnails&&(v.snippet.thumbnails.medium||v.snippet.thumbnails.default)||{}).url||'',
+    pub:v.snippet.publishedAt, cc, views, likes, comments, subs, dur,
+    vph: views/hrs,
+    ratio: subs>0 ? views/subs : -1,
+    eng: views>0 ? (likes+comments)/views*100 : 0,
+    delta: trackSnap(v.id, views)
+  };
+}
+
+async function fetchCountry(cc){
+  const lang=COUNTRIES[cc].l;
+  let ids=[];
+  if(state.source==='hot'){
+    const pub=new Date(Date.now()-48*3600e3).toISOString();
+    const s=await api('search',{part:'snippet',type:'video',order:'viewCount',publishedAfter:pub,
+      regionCode:cc,relevanceLanguage:lang,maxResults:'25',safeSearch:'none'},100);
+    ids=(s.items||[]).map(i=>i.id.videoId).filter(Boolean);
+  }else{
+    const c=await api('videos',{part:'id',chart:'mostPopular',regionCode:cc,maxResults:'25'},1);
+    ids=(c.items||[]).map(i=>i.id);
+  }
+  if(!ids.length) return [];
+  const v=await api('videos',{part:'snippet,statistics,contentDetails',id:ids.join(','),maxResults:'50'},1);
+  const chIds=[...new Set((v.items||[]).map(i=>i.snippet.channelId))];
+  const chMap={};
+  if(chIds.length){
+    const c=await api('channels',{part:'statistics',id:chIds.join(','),maxResults:'50'},1);
+    (c.items||[]).forEach(i=>chMap[i.id]=i);
+  }
+  return (v.items||[]).map(i=>buildVideo(i,chMap,cc));
+}
+
+async function loadAll(force){
+  // 캐시 확인
+  if(!force && !state.demo){
+    try{
+      const c=JSON.parse(localStorage.getItem(LS.cache)||'null');
+      if(c && c.source===state.source && Date.now()-c.t<CACHE_TTL
+         && state.countries.every(cc=>c.data[cc])){
+        state.data=c.data; state.lastFetch=c.t; render(); return;
+      }
+    }catch(e){}
+  }
+  // 무료 한도 초과 시 새 요청 차단 (요금 발생 원천 방지)
+  if(!state.demo && quotaBlocked(refreshCost())){
+    try{
+      const c=JSON.parse(localStorage.getItem(LS.cache)||'null');
+      if(c){ state.data=c.data; state.lastFetch=c.t; render(); }
+    }catch(e){}
+    toast('🛑 오늘의 무료 한도(10,000포인트)에 도달해서 새로고침을 막았어요.<br>요금은 <b>절대 발생하지 않으니</b> 안심하세요 — 내일 오후 4~5시(한국시간)에 자동으로 리셋됩니다.');
+    return;
+  }
+  $('loading').style.display='block'; $('grid').innerHTML=''; $('insight').innerHTML=''; $('kwlist').innerHTML='';
+  const results=await Promise.allSettled(state.countries.map(cc=>fetchCountry(cc)));
+  const failed=[];
+  state.data={};
+  results.forEach((r,i)=>{
+    const cc=state.countries[i];
+    if(r.status==='fulfilled') state.data[cc]=r.value;
+    else { state.data[cc]=[]; failed.push(`${COUNTRIES[cc].f}${COUNTRIES[cc].n}: ${r.reason.message}`); }
+  });
+  saveSnap();
+  state.lastFetch=Date.now();
+  if(!state.demo){
+    try{ localStorage.setItem(LS.cache, JSON.stringify({t:state.lastFetch, source:state.source, data:state.data})); }catch(e){}
+  }
+  $('loading').style.display='none';
+  if(failed.length) toast('⚠️ '+failed.join('<br>'));
+  render();
+}
+
+/* ================= 정적 모드 (깃허브 자동 수집 데이터) ================= */
+function applyStatic(){
+  state.data = staticData.sources[state.source] || {};
+  state.countries = staticData.countries.filter(cc=>COUNTRIES[cc]);
+  state.lastFetch = staticData.t;
+  if(state.tab!=='ALL' && !state.data[state.tab]) state.tab='ALL';
+  render();
+}
+function enterStaticMode(){
+  state.mode='static'; state.demo=false;
+  $('setup').style.display='none'; $('app').style.display='block';
+  $('btnRefresh').style.display=''; $('btnSettings').style.display='none';
+  $('quotaInfo').textContent='🤖 깃허브가 6시간마다 자동 수집 — 이 페이지는 API 키도, 요금도 필요 없어요.';
+  applyStatic();
+}
+
+/* ================= 분석 라벨 ================= */
+function labelOf(v){
+  if(v.subs<=0) return {cls:'l-na', txt:'❔ 구독자 비공개', why:'채널이 구독자수를 숨겨 분석 불가'};
+  const r=v.ratio;
+  const rs = r>=10 ? Math.round(r)+'배' : r.toFixed(1)+'배';
+  if(r>=10) return {cls:'l-rocket', txt:'🚀 초대박 · 구독자의 '+rs, why:`구독자 <b>${fmt(v.subs)}명</b>뿐인데 조회수 <b>${fmt(v.views)}</b> — 구독자 힘이 아니라 <b>알고리즘이 새 시청자에게 대량 노출</b>한 영상이에요.`};
+  if(r>=3)  return {cls:'l-algo', txt:'📈 알고리즘 픽 · '+rs, why:`구독자(${fmt(v.subs)}명) 대비 ${rs} 조회 — 추천 알고리즘의 노출이 성장을 견인했어요.`};
+  if(r>=0.7) return {cls:'l-bal', txt:'⚖️ 균형 · '+rs, why:`구독자(${fmt(v.subs)}명)와 신규 유입이 함께 만든 조회수예요.`};
+  return {cls:'l-fan', txt:'👥 구독자 파워 · '+rs, why:`대형 채널(구독자 <b>${fmt(v.subs)}명</b>)이라 뜬 영상 — 팬덤 기반 조회수라 신규 채널이 참고하긴 어려워요.`};
+}
+
+/* ================= 키워드 추출 ================= */
+function extractKeywords(videos){
+  const count={};
+  videos.forEach(v=>{
+    const seen=new Set();
+    const t=v.title.toLowerCase();
+    const words=[...(t.match(/[a-z0-9]{2,}/g)||[]), ...(t.match(/[가-힣]{2,}/g)||[]),
+                 ...(t.match(/[ぁ-んァ-ヶ一-龯]{2,}/g)||[])];
+    words.forEach(w=>{ if(!STOP.has(w) && !seen.has(w)){ seen.add(w); count[w]=(count[w]||0)+1; } });
+  });
+  return Object.entries(count).filter(([,c])=>c>=2).sort((a,b)=>b[1]-a[1]).slice(0,20);
+}
+
+/* ================= 렌더 ================= */
+function currentVideos(){
+  let vids = state.tab==='ALL'
+    ? Object.values(state.data).flat()
+    : (state.data[state.tab]||[]);
+  if(state.tab==='ALL'){ // 중복 제거 (여러 나라에 동시 등장)
+    const seen={}; vids=vids.filter(v=>{ if(seen[v.id]){seen[v.id].multi=true; return false;} seen[v.id]=v; return true; });
+  }
+  if(state.format==='shorts') vids=vids.filter(v=>v.dur>0&&v.dur<=180);
+  if(state.format==='long') vids=vids.filter(v=>v.dur>180);
+  if(state.kw) vids=vids.filter(v=>v.title.toLowerCase().includes(state.kw));
+  const key=state.sort;
+  vids=[...vids].sort((a,b)=>(b[key]||0)-(a[key]||0));
+  return vids;
+}
+
+function render(){
+  // 국가 칩 (정적 모드에서는 수집된 국가가 전부 탭으로 나오므로 칩 숨김)
+  $('chipsBar').style.display = state.mode==='static' ? 'none' : '';
+  if(state.mode!=='static'){
+    $('countryChips').innerHTML = Object.entries(COUNTRIES).map(([cc,c])=>
+      `<button class="chip ${state.countries.includes(cc)?'on':''}" data-cc="${cc}">${c.f} ${c.n}</button>`).join('');
+  }
+  // 탭
+  const tabs=[['ALL','🌍 통합'],...state.countries.map(cc=>[cc,COUNTRIES[cc].f+' '+COUNTRIES[cc].n])];
+  if(!state.data[state.tab] && state.tab!=='ALL') state.tab='ALL';
+  $('tabs').innerHTML = tabs.map(([id,label])=>
+    `<button class="tab ${state.tab===id?'on':''}" data-tab="${id}">${label}</button>`).join('');
+
+  const vids=currentVideos();
+
+  // 인사이트
+  const labeled=vids.filter(v=>v.subs>0);
+  const algo=labeled.filter(v=>v.ratio>=3).length;
+  const smallCh=labeled.filter(v=>v.subs<100000&&v.ratio>=3).length;
+  const shorts=vids.filter(v=>v.dur>0&&v.dur<=180).length;
+  const avgEng=vids.length?(vids.reduce((s,v)=>s+v.eng,0)/vids.length):0;
+  $('insight').innerHTML=`
+    <div class="ins"><div class="k">영상 수</div><div class="v">${vids.length}<small>개</small></div></div>
+    <div class="ins"><div class="k">📈 알고리즘 픽 비율 <small>(구독자의 3배↑ 조회)</small></div><div class="v">${labeled.length?Math.round(algo/labeled.length*100):0}<small>%</small></div></div>
+    <div class="ins"><div class="k">🌱 10만 미만 채널의 대박 <small>(신규 유튜버 기회 신호)</small></div><div class="v">${smallCh}<small>개</small></div></div>
+    <div class="ins"><div class="k">🩳 쇼츠 비중</div><div class="v">${vids.length?Math.round(shorts/vids.length*100):0}<small>%</small></div></div>
+    <div class="ins"><div class="k">평균 참여율 <small>(좋아요+댓글/조회)</small></div><div class="v">${avgEng.toFixed(1)}<small>%</small></div></div>`;
+
+  // 키워드
+  const kws=extractKeywords(state.tab==='ALL'?Object.values(state.data).flat():(state.data[state.tab]||[]));
+  $('kwlist').innerHTML = kws.length
+    ? kws.map(([w,c])=>`<button class="kw ${state.kw===w?'on':''}" data-kw="${esc(w)}">${esc(w)}<small>${c}</small></button>`).join('')
+    : '<span style="color:var(--sub);font-size:13px">이번 영상들의 제목엔 2번 이상 겹치는 단어가 없네요 — 오류가 아니라 정상이에요. 🌍 통합 탭에서 보면 더 잘 잡힙니다.</span>';
+
+  // 카드
+  $('grid').innerHTML = vids.map((v,i)=>{
+    const lb=labelOf(v);
+    const flag=COUNTRIES[v.cc]?COUNTRIES[v.cc].f:'';
+    return `<div class="vc">
+      <a class="thumb" href="https://youtu.be/${esc(v.id)}" target="_blank">
+        <img src="${esc(v.thumb)}" loading="lazy" alt="">
+        <span class="badge">${flag} ${ago(v.pub)}</span>
+        ${v.dur>0&&v.dur<=180?'<span class="badge sh">Shorts</span>':''}
+        <span class="rank">#${i+1}</span>
+      </a>
+      <div class="vbody">
+        <a class="vtitle" href="https://youtu.be/${esc(v.id)}" target="_blank">${esc(v.title)}</a>
+        <div class="vch">${esc(v.ch)} · 구독자 ${v.subs>0?fmt(v.subs):'비공개'}</div>
+        <div class="stats">
+          <span>조회 <b>${fmt(v.views)}</b></span>
+          <span>시간당 <b>${fmt(v.vph)}</b></span>
+          <span>참여율 <b>${v.eng.toFixed(1)}%</b></span>
+          ${v.delta?`<span class="delta">▲ ${fmt(v.delta.dv)} (${v.delta.hrs<24?Math.round(v.delta.hrs)+'시간':Math.round(v.delta.hrs/24)+'일'} 사이)</span>`:''}
+        </div>
+        <span class="label ${lb.cls}">${lb.txt}</span>
+        <div class="why">💬 ${lb.why}</div>
+      </div>
+    </div>`;
+  }).join('') || '<div style="color:var(--sub);padding:40px;text-align:center;grid-column:1/-1">조건에 맞는 영상이 없어요.</div>';
+
+  $('lastUpdate').textContent = state.lastFetch
+    ? (state.mode==='static'?'마지막 자동 수집: ':'마지막 갱신: ')+new Date(state.lastFetch).toLocaleString('ko-KR') : '';
+  $('demoBanner').style.display = state.demo?'block':'none';
+}
+
+/* ================= 데모 데이터 ================= */
+function demoData(){
+  const now=Date.now(), h=3600e3;
+  const mk=(id,title,ch,subs,views,likes,comments,hrsAgo,dur,cc)=>({
+    id,title,ch,thumb:'',pub:new Date(now-hrsAgo*h).toISOString(),cc,views,likes,comments,subs,dur,
+    vph:views/Math.max(1,hrsAgo), ratio:subs>0?views/subs:-1, eng:views>0?(likes+comments)/views*100:0, delta:null});
+  return {
+    KR:[
+      mk('demo1','무명 개그맨의 급식 브이로그 갑자기 터진 이유','급식왕TV',42000,3100000,182000,9400,18,52,'KR'),
+      mk('demo2','[MV] 신곡 티저 최초공개','대형기획사',8200000,5400000,890000,120000,30,190,'KR'),
+      mk('demo3','서울 자취방 월세 실화냐... 부동산 브이로그','자취생K',9800,890000,45000,3100,40,420,'KR'),
+      mk('demo4','AI로 일주일 만에 앱 만들기 도전','코딩하는직장인',156000,720000,38000,2900,26,780,'KR')
+    ],
+    US:[
+      mk('demo5','I Built a Secret Room in My House','MegaBuilder',24000000,18000000,1400000,88000,36,1200,'US'),
+      mk('demo6','This tiny kitchen hack went viral','CookSmart',31000,4200000,310000,12000,20,45,'US'),
+      mk('demo7','Why Everyone Is Talking About This Game','IndieScope',87000,1900000,140000,9800,44,660,'US')
+    ],
+    JP:[
+      mk('demo8','猫が冷蔵庫を開ける方法を覚えた結果','ねこチャンネル',54000,2800000,190000,7600,22,58,'JP'),
+      mk('demo9','【検証】1週間コンビニ飯生活','大食いユウタ',1200000,950000,61000,4100,33,900,'JP')
+    ]
+  };
+}
+
+/* ================= 이벤트 ================= */
+function showApp(){
+  $('setup').style.display='none'; $('app').style.display='block';
+  $('btnRefresh').style.display=''; $('btnSettings').style.display='';
+}
+
+async function validateKey(key, errEl){
+  errEl.style.display='none';
+  if(!/^AIza[\w-]{20,}$/.test(key.trim())){ errEl.textContent='키 형식이 아니에요. AIza로 시작하는 39자 문자열이어야 해요.'; errEl.style.display='block'; return false; }
+  state.key=key.trim();
+  try{
+    await api('videos',{part:'id',chart:'mostPopular',maxResults:'1'},1);
+    localStorage.setItem(LS.key, state.key);
+    return true;
+  }catch(e){
+    errEl.textContent='❌ '+e.message; errEl.style.display='block'; state.key=localStorage.getItem(LS.key)||''; return false;
+  }
+}
+
+$('btnSaveKey').onclick = async ()=>{
+  if(await validateKey($('keyInput').value, $('keyErr'))){ state.demo=false; showApp(); loadAll(true); }
+};
+$('keyInput').addEventListener('keydown',e=>{ if(e.key==='Enter') $('btnSaveKey').click(); });
+
+$('btnSaveKey2').onclick = async ()=>{
+  if(await validateKey($('keyInput2').value, $('keyErr2'))){
+    $('dlgSettings').close(); state.demo=false; showApp(); loadAll(true);
+  }
+};
+
+$('btnDemo').onclick = ()=>{
+  state.demo=true; state.data=demoData(); state.countries=['KR','US','JP']; state.lastFetch=Date.now();
+  showApp(); render();
+};
+
+$('btnRefresh').onclick = ()=>{
+  if(state.mode==='static'){ location.reload(); return; }
+  if(state.demo){ toast('데모 모드에서는 새로고침이 없어요. API 키를 등록해주세요!'); return; }
+  loadAll(true);
+};
+$('btnSettings').onclick = ()=>$('dlgSettings').showModal();
+$('btnClearCache').onclick = ()=>{ localStorage.removeItem(LS.cache); toast('캐시를 비웠어요.'); };
+$('btnClearSnap').onclick = ()=>{ snap={}; localStorage.removeItem(LS.snap); toast('조회수 기록을 초기화했어요.'); };
+$('btnResetAll').onclick = ()=>{ Object.values(LS).forEach(k=>localStorage.removeItem(k)); location.reload(); };
+
+$('selSource').onchange = e=>{
+  state.source=e.target.value; saveCfg();
+  if(state.mode==='static'){ applyStatic(); return; }
+  if(!state.demo) loadAll(false);
+};
+$('selFormat').onchange = e=>{ state.format=e.target.value; saveCfg(); render(); };
+$('selSort').onchange = e=>{ state.sort=e.target.value; saveCfg(); render(); };
+
+document.addEventListener('click', e=>{
+  const chip=e.target.closest('.chip[data-cc]');
+  if(chip && state.mode!=='static'){
+    const cc=chip.dataset.cc;
+    if(state.countries.includes(cc)){
+      if(state.countries.length<=1) return toast('최소 1개 국가는 선택해야 해요.');
+      state.countries=state.countries.filter(c=>c!==cc);
+      delete state.data[cc];
+      render();
+    }else{
+      if(state.countries.length>=6) return toast('국가는 최대 6개까지 — API 한도를 아끼기 위해서예요.');
+      if(!state.demo && quotaBlocked(state.source==='hot'?102:3))
+        return toast('🛑 오늘의 무료 한도에 도달해서 추가 조회를 막았어요. 요금은 발생하지 않아요 — 내일 다시 시도해주세요.');
+      state.countries.push(cc);
+      if(state.demo){ render(); return; }
+      $('loading').style.display='block';
+      fetchCountry(cc).then(v=>{ state.data[cc]=v; saveSnap(); }).catch(err=>toast('⚠️ '+err.message))
+        .finally(()=>{ $('loading').style.display='none'; saveCfg(); render(); });
+      return;
+    }
+    saveCfg();
+  }
+  const tab=e.target.closest('.tab[data-tab]');
+  if(tab){ state.tab=tab.dataset.tab; render(); }
+  const kw=e.target.closest('.kw[data-kw]');
+  if(kw){ state.kw = state.kw===kw.dataset.kw ? null : kw.dataset.kw; render(); }
+});
+
+/* ================= 시작 ================= */
+(async function init(){
+  $('selSource').value=state.source; $('selFormat').value=state.format; $('selSort').value=state.sort;
+  addQuota(0);
+  // 1순위: 깃허브 자동 수집 데이터 (호스팅 모드 — 키 불필요)
+  try{
+    const r = await fetch('./data/latest.json?v='+Date.now());
+    if(r.ok){ staticData = await r.json(); enterStaticMode(); return; }
+  }catch(e){ /* file:// 로 열었거나 데이터 없음 → 키 모드로 */ }
+  // 호스팅 중인데 데이터만 없는 경우: 첫 수집 안내 배너
+  if(location.protocol.startsWith('http')) $('pendingBanner').style.display='block';
+  // 2순위: 브라우저에서 직접 API 호출 (키 모드)
+  if(state.key){ showApp(); loadAll(false); }
+})();
+</script>
+</body>
+</html>
