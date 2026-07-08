@@ -90,6 +90,32 @@ select{background:var(--chip);color:var(--txt);border:1px solid var(--line);bord
 .why b{color:var(--txt)}
 .delta{font-size:12px;color:var(--good)}
 
+/* ---------- 벤치마크 리포트 ---------- */
+#report{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-bottom:16px}
+.rep{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.rep .k{font-size:12px;color:var(--sub);margin-bottom:9px}
+.rep .row{display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:5px}
+.rep .row .lbl{width:56px;color:var(--sub);flex-shrink:0}
+.rep .row .bar{flex:1;height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}
+.rep .row .bar i{display:block;height:100%;background:var(--accent2);border-radius:4px}
+.rep .row.hot .lbl{color:var(--txt);font-weight:600}
+.rep .row.hot .bar i{background:var(--accent)}
+.rep .row .val{width:44px;text-align:right;color:var(--sub);flex-shrink:0}
+.rep .tstat{display:flex;flex-wrap:wrap;gap:6px}
+.rep .tstat span{background:var(--panel2);padding:5px 10px;border-radius:8px;font-size:12px;color:var(--sub)}
+.rep .tstat b{color:var(--accent2)}
+.rep .chrow{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:5px 6px;cursor:pointer;border-radius:6px}
+.rep .chrow:hover{background:var(--panel2)}
+.rep .chrow.on{color:var(--accent);font-weight:600;background:var(--panel2)}
+.rep .chrow .cn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rep .chrow .cs{color:var(--sub);flex-shrink:0}
+.labelrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.star{background:var(--chip);color:var(--sub);padding:5px 10px;font-size:12px;border-radius:8px;flex-shrink:0}
+.star.on{background:#332a14;color:var(--warn)}
+.chipbtn{background:var(--chip);color:var(--sub);padding:7px 13px;border-radius:20px;font-size:13px;border:1px solid transparent}
+.chipbtn:hover{color:var(--txt)}
+.chipbtn.on{background:#143024;color:var(--good);border-color:var(--good)}
+
 /* ---------- 기타 ---------- */
 #loading{text-align:center;padding:60px 0;color:var(--sub);display:none}
 .spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;margin:0 auto 14px;animation:sp 1s linear infinite}
@@ -169,12 +195,19 @@ dialog .keyrow{margin-bottom:10px}
       <option value="vph">시간당 조회수 순 (급상승 속도)</option>
       <option value="ratio">구독자 대비 배율 순 (알고리즘 픽)</option>
       <option value="eng">참여율 순</option>
+      <option value="deltaRate">▲ 최근 증가 속도 순 (스냅샷 비교)</option>
     </select>
+    <div class="divider"></div>
+    <button class="chipbtn" id="btnOpp" title="구독자 10만 미만인데 구독자의 3배 이상 조회수가 난 영상만 — 신규 채널이 벤치마크할 수 있는 영상">🌱 기회 영상만</button>
+    <div class="spacer"></div>
+    <button class="iconbtn" id="btnBoard">⭐ 저장함 <span id="boardCnt"></span></button>
+    <button class="iconbtn" id="btnCsv" title="현재 목록을 엑셀용 CSV 파일로 저장">⬇ CSV</button>
   </div>
 
   <div class="tabs" id="tabs"></div>
   <div id="insight"></div>
-  <div id="kwbox"><div class="k">🔑 지금 인기 키워드 <span style="opacity:.6">(제목에서 추출 · 클릭하면 해당 영상만 필터)</span></div><div id="kwlist"></div></div>
+  <div id="kwbox"><div class="k">🔑 지금 인기 키워드 <span style="opacity:.6">(제목에서 추출 · 클릭하면 해당 영상만 필터 — 아래 리포트도 그 기준으로 재계산)</span></div><div id="kwlist"></div></div>
+  <div id="report"></div>
   <div id="loading"><div class="spin"></div>데이터를 불러오는 중...</div>
   <div id="grid"></div>
 </div>
@@ -201,7 +234,7 @@ dialog .keyrow{margin-bottom:10px}
 <script>
 'use strict';
 /* ================= 상수 ================= */
-const LS = {key:'ytt_key', cache:'ytt_cache', snap:'ytt_snap', cfg:'ytt_cfg', quota:'ytt_quota'};
+const LS = {key:'ytt_key', cache:'ytt_cache', snap:'ytt_snap', cfg:'ytt_cfg', quota:'ytt_quota', board:'ytt_board'};
 const COUNTRIES = {
   KR:{n:'한국',f:'🇰🇷',l:'ko'}, US:{n:'미국',f:'🇺🇸',l:'en'}, JP:{n:'일본',f:'🇯🇵',l:'ja'},
   GB:{n:'영국',f:'🇬🇧',l:'en'}, DE:{n:'독일',f:'🇩🇪',l:'de'}, FR:{n:'프랑스',f:'🇫🇷',l:'fr'},
@@ -224,9 +257,12 @@ let state = {
   key: localStorage.getItem(LS.key) || '',
   countries: ['KR','US','JP'],
   source: 'hot', tab: 'ALL', format: 'all', sort: 'views',
-  kw: null, data: {}, demo: false, lastFetch: 0
+  kw: null, data: {}, demo: false, lastFetch: 0,
+  opp: false,   // 🌱 기회 영상만 (소형 채널 + 알고리즘 픽)
+  board: false, // ⭐ 저장함 보기
+  chf: null     // 채널 필터
 };
-try { Object.assign(state, JSON.parse(localStorage.getItem(LS.cfg)||'{}'), {mode:'key', kw:null, data:{}, demo:false}); } catch(e){}
+try { Object.assign(state, JSON.parse(localStorage.getItem(LS.cfg)||'{}'), {mode:'key', kw:null, data:{}, demo:false, opp:false, board:false, chf:null}); } catch(e){}
 function saveCfg(){ localStorage.setItem(LS.cfg, JSON.stringify({countries:state.countries, source:state.source, format:state.format, sort:state.sort})); }
 
 /* ================= 유틸 ================= */
@@ -380,6 +416,7 @@ async function loadAll(force){
     else { state.data[cc]=[]; failed.push(`${COUNTRIES[cc].f}${COUNTRIES[cc].n}: ${r.reason.message}`); }
   });
   saveSnap();
+  enrichData(state.data);
   state.lastFetch=Date.now();
   if(!state.demo){
     try{ localStorage.setItem(LS.cache, JSON.stringify({t:state.lastFetch, source:state.source, data:state.data})); }catch(e){}
@@ -389,9 +426,49 @@ async function loadAll(force){
   render();
 }
 
+/* ================= 파생값 계산 ================= */
+function enrichData(dataObj){
+  Object.values(dataObj||{}).forEach(arr=>(arr||[]).forEach(v=>{
+    v.deltaRate = v.delta ? v.delta.dv/Math.max(1,v.delta.hrs) : 0;
+  }));
+}
+
+/* ================= ⭐ 리서치 보드 (저장함) ================= */
+function getBoard(){ try{ return JSON.parse(localStorage.getItem(LS.board)||'[]'); }catch(e){ return []; } }
+function toggleSave(id){
+  const b=getBoard(); const i=b.findIndex(x=>x.id===id);
+  if(i>=0){ b.splice(i,1); toast('저장함에서 뺐어요.'); }
+  else{
+    const v=Object.values(state.data).flat().find(x=>x.id===id);
+    if(!v) return;
+    b.unshift({...v, savedAt:Date.now()});
+    toast('⭐ 저장함에 담았어요 — 수집 데이터가 바뀌어도 계속 보관됩니다.');
+  }
+  localStorage.setItem(LS.board, JSON.stringify(b));
+  render();
+}
+
+/* ================= ⬇ CSV 내보내기 ================= */
+function buildCsv(vids){
+  const head=['순위','제목','채널','구독자','조회수','시간당조회','구독자대비배율','참여율%','길이(초)','업로드','국가','URL'];
+  const rows=vids.map((v,i)=>[i+1, v.title, v.ch, v.subs>0?v.subs:'', v.views, Math.round(v.vph),
+    v.ratio>0?v.ratio.toFixed(2):'', v.eng.toFixed(2), v.dur, v.pub, v.cc, 'https://youtu.be/'+v.id]);
+  return String.fromCharCode(0xFEFF)+[head,...rows].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+}
+function exportCsv(){
+  const vids=currentVideos();
+  if(!vids.length) return toast('내보낼 영상이 없어요.');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([buildCsv(vids)],{type:'text/csv;charset=utf-8'}));
+  a.download='yt-trend_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('⬇ CSV로 저장했어요 — 엑셀에서 바로 열립니다.');
+}
+
 /* ================= 정적 모드 (깃허브 자동 수집 데이터) ================= */
 function applyStatic(){
   state.data = staticData.sources[state.source] || {};
+  enrichData(state.data);
   state.countries = staticData.countries.filter(cc=>COUNTRIES[cc]);
   state.lastFetch = staticData.t;
   if(state.tab!=='ALL' && !state.data[state.tab]) state.tab='ALL';
@@ -431,12 +508,22 @@ function extractKeywords(videos){
 
 /* ================= 렌더 ================= */
 function currentVideos(){
-  let vids = state.tab==='ALL'
-    ? Object.values(state.data).flat()
-    : (state.data[state.tab]||[]);
-  if(state.tab==='ALL'){ // 중복 제거 (여러 나라에 동시 등장)
-    const seen={}; vids=vids.filter(v=>{ if(seen[v.id]){seen[v.id].multi=true; return false;} seen[v.id]=v; return true; });
+  let vids;
+  if(state.board){
+    vids = getBoard();
+  } else if(state.tab==='ALL'){
+    vids = Object.values(state.data).flat();
+    // 중복 제거 + 몇 개국에 동시 등장했는지 기록 (여러 나라에서 뜬 영상 = 문화 안 타는 포맷)
+    const seen={};
+    vids = vids.filter(v=>{
+      if(seen[v.id]){ if(!seen[v.id].ccs.includes(v.cc)) seen[v.id].ccs.push(v.cc); return false; }
+      v.ccs=[v.cc]; seen[v.id]=v; return true;
+    });
+  } else {
+    vids = state.data[state.tab]||[];
   }
+  if(state.opp) vids=vids.filter(v=>v.subs>0&&v.subs<100000&&v.ratio>=3);
+  if(state.chf) vids=vids.filter(v=>v.ch===state.chf);
   if(state.format==='shorts') vids=vids.filter(v=>v.dur>0&&v.dur<=180);
   if(state.format==='long') vids=vids.filter(v=>v.dur>180);
   if(state.kw) vids=vids.filter(v=>v.title.toLowerCase().includes(state.kw));
@@ -452,11 +539,20 @@ function render(){
     $('countryChips').innerHTML = Object.entries(COUNTRIES).map(([cc,c])=>
       `<button class="chip ${state.countries.includes(cc)?'on':''}" data-cc="${cc}">${c.f} ${c.n}</button>`).join('');
   }
-  // 탭
+  // 탭 (저장함 모드에서는 숨김)
+  $('tabs').style.display = state.board?'none':'';
   const tabs=[['ALL','🌍 통합'],...state.countries.map(cc=>[cc,COUNTRIES[cc].f+' '+COUNTRIES[cc].n])];
   if(!state.data[state.tab] && state.tab!=='ALL') state.tab='ALL';
   $('tabs').innerHTML = tabs.map(([id,label])=>
     `<button class="tab ${state.tab===id?'on':''}" data-tab="${id}">${label}</button>`).join('');
+
+  // 툴바 버튼 상태
+  $('btnOpp').classList.toggle('on', state.opp);
+  const boardArr=getBoard();
+  $('boardCnt').textContent = boardArr.length?`(${boardArr.length})`:'';
+  $('btnBoard').style.background = state.board?'#332a14':'';
+  $('btnBoard').style.color = state.board?'var(--warn)':'';
+  const savedSet=new Set(boardArr.map(x=>x.id));
 
   const vids=currentVideos();
 
@@ -483,10 +579,13 @@ function render(){
   $('grid').innerHTML = vids.map((v,i)=>{
     const lb=labelOf(v);
     const flag=COUNTRIES[v.cc]?COUNTRIES[v.cc].f:'';
+    const multi=v.ccs&&v.ccs.length>1;
+    const flags=multi?v.ccs.map(c=>COUNTRIES[c]?COUNTRIES[c].f:'').join(''):flag;
+    const saved=savedSet.has(v.id);
     return `<div class="vc">
       <a class="thumb" href="https://youtu.be/${esc(v.id)}" target="_blank">
         <img src="${esc(v.thumb)}" loading="lazy" alt="">
-        <span class="badge">${flag} ${ago(v.pub)}</span>
+        <span class="badge">${flags} ${ago(v.pub)}${multi?` · 🌍${v.ccs.length}개국`:''}</span>
         ${v.dur>0&&v.dur<=180?'<span class="badge sh">Shorts</span>':''}
         <span class="rank">#${i+1}</span>
       </a>
@@ -497,17 +596,71 @@ function render(){
           <span>조회 <b>${fmt(v.views)}</b></span>
           <span>시간당 <b>${fmt(v.vph)}</b></span>
           <span>참여율 <b>${v.eng.toFixed(1)}%</b></span>
-          ${v.delta?`<span class="delta">▲ ${fmt(v.delta.dv)} (${v.delta.hrs<24?Math.round(v.delta.hrs)+'시간':Math.round(v.delta.hrs/24)+'일'} 사이)</span>`:''}
+          ${v.delta?`<span class="delta">▲ ${fmt(v.delta.dv)} (${v.delta.hrs<1?'1시간 미만':v.delta.hrs<24?Math.round(v.delta.hrs)+'시간':Math.round(v.delta.hrs/24)+'일'} 사이)</span>`:''}
         </div>
-        <span class="label ${lb.cls}">${lb.txt}</span>
+        <div class="labelrow">
+          <span class="label ${lb.cls}">${lb.txt}</span>
+          <button class="star ${saved?'on':''}" data-save="${esc(v.id)}">${saved?'⭐ 저장됨':'☆ 저장'}</button>
+        </div>
         <div class="why">💬 ${lb.why}</div>
       </div>
     </div>`;
-  }).join('') || '<div style="color:var(--sub);padding:40px;text-align:center;grid-column:1/-1">조건에 맞는 영상이 없어요.</div>';
+  }).join('') || `<div style="color:var(--sub);padding:40px;text-align:center;grid-column:1/-1">${state.board?'저장한 영상이 없어요. 카드의 ☆ 저장 버튼으로 리서치용 영상을 담아보세요.':'조건에 맞는 영상이 없어요.'}</div>`;
+
+  renderReport(vids);
 
   $('lastUpdate').textContent = state.lastFetch
     ? (state.mode==='static'?'마지막 자동 수집: ':'마지막 갱신: ')+new Date(state.lastFetch).toLocaleString('ko-KR') : '';
   $('demoBanner').style.display = state.demo?'block':'none';
+}
+
+/* ================= 📋 벤치마크 리포트 (현재 필터 기준 재계산) ================= */
+let emojiRe; try{ emojiRe=new RegExp('\\p{Extended_Pictographic}','u'); }catch(e){ emojiRe=/[☀-➿]/; }
+function renderReport(vids){
+  const el=$('report');
+  if(!vids.length){ el.innerHTML=''; return; }
+
+  // ✍️ 제목 공식
+  const T=vids.map(v=>v.title);
+  const avgLen=Math.round(T.reduce((s,t)=>s+[...t].length,0)/T.length);
+  const pct=f=>Math.round(T.filter(f).length/T.length*100);
+  const tHtml=`<div class="tstat">
+    <span>평균 길이 <b>${avgLen}자</b></span>
+    <span>숫자 포함 <b>${pct(t=>/\d/.test(t))}%</b></span>
+    <span>[괄호] 사용 <b>${pct(t=>/[\[\(【]/.test(t))}%</b></span>
+    <span>이모지 <b>${pct(t=>emojiRe.test(t))}%</b></span>
+    <span>물음표 <b>${pct(t=>t.includes('?'))}%</b></span>
+    <span>느낌표 <b>${pct(t=>t.includes('!'))}%</b></span>
+  </div>`;
+
+  // ⏱️ 길이 분포
+  const dv=vids.filter(v=>v.dur>0);
+  const dLbl=['~1분','1~3분','3~10분','10~20분','20분+'];
+  const dCnt=[0,0,0,0,0];
+  dv.forEach(v=>{ const d=v.dur; dCnt[d<=60?0:d<=180?1:d<=600?2:d<=1200?3:4]++; });
+  const dMax=Math.max(...dCnt,1);
+  const durHtml=dCnt.map((c,i)=>
+    `<div class="row ${c>0&&c===Math.max(...dCnt)?'hot':''}"><span class="lbl">${dLbl[i]}</span><span class="bar"><i style="width:${c/dMax*100}%"></i></span><span class="val">${dv.length?Math.round(c/dv.length*100):0}%</span></div>`).join('');
+
+  // 🕐 업로드 시간대 (보는 사람의 로컬 시간 기준)
+  const hCnt=[0,0,0,0,0,0,0,0];
+  vids.forEach(v=>{ hCnt[Math.floor(new Date(v.pub).getHours()/3)]++; });
+  const hMax=Math.max(...hCnt,1);
+  const hourHtml=hCnt.map((c,i)=>
+    `<div class="row ${c>0&&c===Math.max(...hCnt)?'hot':''}"><span class="lbl">${i*3}~${i*3+3}시</span><span class="bar"><i style="width:${c/hMax*100}%"></i></span><span class="val">${c}개</span></div>`).join('');
+
+  // 🏆 이 목록을 지배하는 채널
+  const chm={};
+  vids.forEach(v=>{ const o=chm[v.ch]=chm[v.ch]||{ch:v.ch,subs:v.subs,n:0,views:0}; o.n++; o.views+=v.views; });
+  const top=Object.values(chm).sort((a,b)=>b.n-a.n||b.views-a.views).slice(0,5);
+  const chHtml=top.map(c=>
+    `<div class="chrow ${state.chf===c.ch?'on':''}" data-chf="${esc(c.ch)}"><span class="cn">${state.chf===c.ch?'✕ ':''}${esc(c.ch)}</span><span class="cs">${c.n}개 · 구독 ${c.subs>0?fmt(c.subs):'?'}</span></div>`).join('');
+
+  el.innerHTML=`
+    <div class="rep"><div class="k">✍️ 제목 공식 — 지금 뜨는 제목은 이렇게 생겼어요</div>${tHtml}</div>
+    <div class="rep"><div class="k">⏱️ 뜨는 영상 길이 분포</div>${durHtml}</div>
+    <div class="rep"><div class="k">🕐 뜬 영상들의 업로드 시간대 (내 시간 기준)</div>${hourHtml}</div>
+    <div class="rep"><div class="k">🏆 이 목록을 지배하는 채널 (클릭 = 해당 채널만 필터)</div>${chHtml}</div>`;
 }
 
 /* ================= 데모 데이터 ================= */
@@ -566,7 +719,7 @@ $('btnSaveKey2').onclick = async ()=>{
 };
 
 $('btnDemo').onclick = ()=>{
-  state.demo=true; state.data=demoData(); state.countries=['KR','US','JP']; state.lastFetch=Date.now();
+  state.demo=true; state.data=demoData(); enrichData(state.data); state.countries=['KR','US','JP']; state.lastFetch=Date.now();
   showApp(); render();
 };
 
@@ -587,8 +740,15 @@ $('selSource').onchange = e=>{
 };
 $('selFormat').onchange = e=>{ state.format=e.target.value; saveCfg(); render(); };
 $('selSort').onchange = e=>{ state.sort=e.target.value; saveCfg(); render(); };
+$('btnOpp').onclick = ()=>{ state.opp=!state.opp; render(); };
+$('btnBoard').onclick = ()=>{ state.board=!state.board; render(); };
+$('btnCsv').onclick = exportCsv;
 
 document.addEventListener('click', e=>{
+  const sv=e.target.closest('.star[data-save]');
+  if(sv){ toggleSave(sv.dataset.save); return; }
+  const chr=e.target.closest('.chrow[data-chf]');
+  if(chr){ state.chf = state.chf===chr.dataset.chf ? null : chr.dataset.chf; render(); return; }
   const chip=e.target.closest('.chip[data-cc]');
   if(chip && state.mode!=='static'){
     const cc=chip.dataset.cc;
