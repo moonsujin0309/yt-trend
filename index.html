@@ -59,9 +59,10 @@ select{background:var(--chip);color:var(--txt);border:1px solid var(--line);bord
 .ins .v small{font-size:12px;color:var(--sub);font-weight:400}
 
 /* ---------- 키워드 ---------- */
-#kwbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px}
-#kwbox .k{font-size:12px;color:var(--sub);margin-bottom:8px}
-#kwlist{display:flex;flex-wrap:wrap;gap:7px}
+#kwbox,#nichebox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+#nichebox{margin-bottom:10px}
+#kwbox .k,#nichebox .k{font-size:12px;color:var(--sub);margin-bottom:8px}
+#kwlist,#nichelist{display:flex;flex-wrap:wrap;gap:7px}
 .kw{background:var(--chip);padding:5px 11px;border-radius:16px;font-size:13px;color:var(--txt)}
 .kw small{color:var(--sub);margin-left:4px}
 .kw.on{background:var(--accent);color:#fff}
@@ -86,6 +87,8 @@ select{background:var(--chip);color:var(--txt);border:1px solid var(--line);bord
 .l-bal{background:#26301f;color:#a8d97f}
 .l-fan{background:#332a14;color:#ffc76b}
 .l-na{background:var(--chip);color:var(--sub)}
+.lgroup{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.nb{font-size:11.5px;color:var(--sub);background:var(--chip);padding:3px 8px;border-radius:8px;white-space:nowrap}
 .why{font-size:12.5px;color:var(--sub);border-top:1px dashed var(--line);padding-top:8px;margin-top:auto}
 .why b{color:var(--txt)}
 .delta{font-size:12px;color:var(--good)}
@@ -95,7 +98,7 @@ select{background:var(--chip);color:var(--txt);border:1px solid var(--line);bord
 .rep{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 .rep .k{font-size:12px;color:var(--sub);margin-bottom:9px}
 .rep .row{display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:5px}
-.rep .row .lbl{width:56px;color:var(--sub);flex-shrink:0}
+.rep .row .lbl{width:56px;color:var(--sub);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rep .row .bar{flex:1;height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}
 .rep .row .bar i{display:block;height:100%;background:var(--accent2);border-radius:4px}
 .rep .row.hot .lbl{color:var(--txt);font-weight:600}
@@ -190,6 +193,13 @@ dialog .keyrow{margin-bottom:10px}
       <option value="shorts">쇼츠만 (3분 이하)</option>
       <option value="long">롱폼만</option>
     </select>
+    <select id="selSubs" title="구독자 규모로 좁혀보기 — 내 채널과 비슷한 크기의 영상만 보면 벤치마크가 쉬워요">
+      <option value="all">구독자 전체</option>
+      <option value="0-10000">0~1만 (급성장)</option>
+      <option value="10000-50000">1만~5만</option>
+      <option value="50000-100000">5만~10만</option>
+      <option value="100000-Infinity">10만 이상</option>
+    </select>
     <select id="selSort">
       <option value="views">조회수 순</option>
       <option value="vph">시간당 조회수 순 (급상승 속도)</option>
@@ -209,6 +219,7 @@ dialog .keyrow{margin-bottom:10px}
 
   <div class="tabs" id="tabs"></div>
   <div id="insight"></div>
+  <div id="nichebox"><div class="k">💰 수익 니치 <span style="opacity:.6">(제목으로 자동 분류 · 클릭하면 해당 니치만 — 키워드 필터와 같이 걸 수 있어요)</span></div><div id="nichelist"></div></div>
   <div id="kwbox"><div class="k">🔑 지금 인기 키워드 <span style="opacity:.6">(제목에서 추출 · 클릭하면 해당 영상만 필터 — 아래 리포트도 그 기준으로 재계산)</span></div><div id="kwlist"></div></div>
   <div id="report"></div>
   <div id="loading"><div class="spin"></div>데이터를 불러오는 중...</div>
@@ -267,21 +278,62 @@ const CAT_NAME = {1:'영화·애니', 2:'자동차', 10:'음악', 15:'동물', 1
 const FMT_MULT = {shorts:0.12, mid:1.0, long:1.35}; // 쇼츠(≤3분) / 3~8분 / 8분↑(미드롤 가능)
 const USD_KRW = 1380; // ← 환율 갱신 지점
 
+/* ========== 💰 수익 니치 (제목 키워드로 직접 분류) ==========
+   유튜브 공식 categoryId는 "인물·블로그"(22) 하나에 재테크 채널과 먹방이 같이 들어가서 광고단가 차이를 못 잡는다.
+   그래서 제목 단어만 보고 "실제로 돈이 다른 니치"로 직접 나눈다 — API 추가 호출 0, 구 데이터에도 그대로 작동.
+   ▶ 여기 kw 배열에 단어만 추가하면 분류가 늘어난다. 새 니치를 넣을 땐 배열 순서 = 우선순위이므로
+     (제목을 위에서부터 훑어 첫 매칭을 채택) 광고단가 높은 니치를 위쪽에 둔다.
+   ▶ 매칭 규칙: 한글·일본어 등 비ASCII 단어는 부분 문자열, 영문은 단어 경계(stock ≠ stockholm, food ≠ foodie).
+   ▶ 알려진 한계: 2글자 영문 키워드는 오탐이 난다 (베트남어 'Ai Cập'=이집트가 ai/IT로 잡힘).
+     오탐이 거슬리면 해당 kw만 빼면 된다 — 분류가 줄 뿐 다른 로직은 건드릴 필요 없다. */
+const NICHE = [
+ {id:'money', name:'💰 재테크/투자',   mul:2.2, kw:['주식','투자','부동산','재테크','코인','비트코인','적금','연금','대출','금리','월급','부업','절세','세금','경제','증권','배당','etf','수익률','stock','invest','crypto','bitcoin','finance','dividend','passive income','side hustle']},
+ {id:'health',name:'🩺 건강/의학',     mul:1.9, kw:['건강','의학','병원','질병','다이어트','영양제','수술','의사','혈압','당뇨','통증','운동법','health','doctor','disease','diet','supplement','workout']},
+ {id:'tech',  name:'🤖 AI/IT',        mul:1.9, kw:['ai','인공지능','챗gpt','프로그래밍','코딩','개발','노션','엑셀','자동화','아이폰','갤럭시','앱추천','chatgpt','coding','software','automation','iphone','gadget','tech']},
+ {id:'edu',   name:'📚 교육/커리어',   mul:1.7, kw:['공부','강의','영어','토익','수능','자격증','취업','면접','이직','연봉','생산성','study','english','learn','tutorial','course','career','productivity']},
+ {id:'auto',  name:'🚗 자동차',        mul:1.5, kw:['자동차','시승','전기차','테슬라','신차','중고차','tesla','car review']},
+ {id:'howto', name:'🛠️ 하우투/살림',   mul:1.4, kw:['만들기','정리','청소','수납','인테리어','꿀팁','diy','how to','life hack','organize']},
+ {id:'travel',name:'✈️ 여행',          mul:1.3, kw:['여행','호텔','항공','숙소','관광','travel','hotel','flight','itinerary']},
+ {id:'beauty',name:'💄 뷰티',          mul:1.2, kw:['뷰티','화장품','메이크업','피부','헤어','다이소추천','makeup','skincare','beauty']},
+ {id:'food',  name:'🍳 요리/음식',     mul:1.0, kw:['요리','레시피','먹방','맛집','자취요리','recipe','cooking','mukbang','food']},
+ {id:'life',  name:'🏠 라이프/브이로그',mul:1.0, kw:['브이로그','일상','자취','살림','vlog','daily routine']},
+ {id:'motiv', name:'🔥 동기부여/명언',  mul:0.9, kw:['명언','동기부여','인생','성공','마인드','motivation','mindset','quotes']},
+ {id:'pet',   name:'🐕 반려동물',       mul:0.85,kw:['강아지','고양이','반려','댕댕','냥이','puppy','kitten','pets']},
+ {id:'enter', name:'🎬 연예/이슈',      mul:0.75,kw:['연예인','아이돌','드라마','예능','배우','가수','열애','결혼','kpop','idol','celebrity','drama']},
+ {id:'crime', name:'🚨 사건사고',       mul:0.7, kw:['블랙박스','사고','사건','실화','논란','폭로','소름','cctv','accident','shocking']},
+ {id:'game',  name:'🎮 게임',          mul:0.7, kw:['게임','롤','피파','마크','배그','로블록스','gaming','minecraft','roblox','gameplay']},
+ {id:'music', name:'🎵 음악',          mul:0.5, kw:['뮤직비디오','커버','노래','가사','앨범','official mv','music video','cover song','lyrics']}
+];
+NICHE.forEach(n=>{ // 영문 키워드는 단어 경계 정규식 하나로 미리 합쳐둔다 (렌더마다 새로 만들지 않도록)
+  const ascii = n.kw.filter(w=>!/[^\x00-\x7F]/.test(w));
+  // 끝의 s?는 복수형(idols, recipes, gadgets)까지 잡기 위한 것 — stockholm 같은 오탐은 여전히 걸러진다
+  n._re  = ascii.length ? new RegExp('\\b(?:'+ascii.join('|')+')s?\\b','i') : null;
+  n._sub = n.kw.filter(w=>/[^\x00-\x7F]/.test(w));
+});
+function nicheOf(title){
+  const t = String(title||'').toLowerCase();
+  for(const n of NICHE){
+    if(n._sub.some(w=>t.includes(w))) return n;
+    if(n._re && n._re.test(t)) return n;
+  }
+  return null; // 사전에 없는 제목 — 이 비율은 리포트에 "미분류 N%"로 노출된다
+}
+
 /* ================= 상태 ================= */
 let staticData = null; // 깃허브 자동 수집 데이터 (호스팅 모드)
 let state = {
   mode: 'key', // 'static' = 깃허브 수집 데이터 사용(키 불필요) / 'key' = 브라우저에서 직접 API 호출
   key: localStorage.getItem(LS.key) || '',
   countries: ['KR','US','JP'],
-  source: 'hot', tab: 'ALL', format: 'all', sort: 'views',
-  kw: null, data: {}, demo: false, lastFetch: 0,
+  source: 'hot', tab: 'ALL', format: 'all', sort: 'views', subs: 'all',
+  kw: null, nc: null, data: {}, demo: false, lastFetch: 0,
   opp: false,   // 🌱 기회 영상만 (소형 채널 + 알고리즘 픽)
   money: false, // 💰 돈되는 영상만 (쇼츠 제외 + 예상수익 중앙값 이상)
   board: false, // ⭐ 저장함 보기
   chf: null     // 채널 필터
 };
 try { Object.assign(state, JSON.parse(localStorage.getItem(LS.cfg)||'{}'), {mode:'key', kw:null, data:{}, demo:false, opp:false, board:false, chf:null}); } catch(e){}
-function saveCfg(){ localStorage.setItem(LS.cfg, JSON.stringify({countries:state.countries, source:state.source, format:state.format, sort:state.sort, money:state.money})); }
+function saveCfg(){ localStorage.setItem(LS.cfg, JSON.stringify({countries:state.countries, source:state.source, format:state.format, sort:state.sort, subs:state.subs, money:state.money, nc:state.nc})); }
 
 /* ================= 유틸 ================= */
 const $ = id => document.getElementById(id);
@@ -455,9 +507,10 @@ async function loadAll(force){
    호출부마다 붙일 필요가 없다. 순수 계산이라 여러 번 돌아도 결과가 같다. */
 function enrich(v){
   v.deltaRate = v.delta ? v.delta.dv/Math.max(1,v.delta.hrs) : 0;
-  // 💰 예상 수익: cat 없는 구 데이터는 배율 1.0으로 폴백
+  // 💰 예상 수익: 니치가 잡히면 니치 배율, 안 잡히면 categoryId 배율로 폴백 (둘을 곱하지 않는다 — 이중 적용 금지)
+  v.niche = nicheOf(v.title);
   const fm = isShorts(v) ? FMT_MULT.shorts : v.dur>=480 ? FMT_MULT.long : FMT_MULT.mid;
-  v.rev = v.views/1000 * (RPM[v.cc]||RPM_ETC) * (CAT_MULT[v.cat]||1) * fm;
+  v.rev = v.views/1000 * (RPM[v.cc]||RPM_ETC) * (v.niche ? v.niche.mul : (CAT_MULT[v.cat]||1)) * fm;
   const hrs = Math.max(1,(Date.now()-new Date(v.pub).getTime())/3600e3);
   v.revph = v.rev/hrs;                                             // 시간당 예상 수익
   v.golden = v.revph * Math.min(v.ratio>0?v.ratio:1, 10);          // 돈 + 재현가능성
@@ -481,8 +534,8 @@ function toggleSave(id){
 
 /* ================= ⬇ CSV 내보내기 ================= */
 function buildCsv(vids){
-  const head=['순위','제목','채널','구독자','조회수','시간당조회','구독자대비배율','참여율%','길이(초)','예상수익($)','업로드','국가','URL'];
-  const rows=vids.map((v,i)=>[i+1, v.title, v.ch, v.subs>0?v.subs:'', v.views, Math.round(v.vph),
+  const head=['순위','제목','채널','니치','구독자','조회수','시간당조회','구독자대비배율','참여율%','길이(초)','예상수익($)','업로드','국가','URL'];
+  const rows=vids.map((v,i)=>[i+1, v.title, v.ch, v.niche?v.niche.name:'', v.subs>0?v.subs:'', v.views, Math.round(v.vph),
     v.ratio>0?v.ratio.toFixed(2):'', v.eng.toFixed(2), v.dur, v.rev.toFixed(2), v.pub, v.cc, 'https://youtu.be/'+v.id]);
   return String.fromCharCode(0xFEFF)+[head,...rows].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\r\n');
 }
@@ -525,8 +578,9 @@ function labelOf(v){
 
 /* 💰 수익 한 줄 설명 (labelOf와 분리 — 라벨은 '왜 떴나', 이쪽은 '얼마 버나') */
 function revNote(v){
-  const cat = CAT_NAME[v.cat] ? `${CAT_NAME[v.cat]} 카테고리, ` : '';
-  const money = `${cat}추정 수익 <b>${usd(v.rev)}</b>(약 ${fmt(v.rev*USD_KRW)}원)`;
+  // 배율을 실제로 어느 쪽에서 가져왔는지 그대로 적는다 (니치 우선 · 없으면 카테고리)
+  const seg = v.niche ? `${v.niche.name} 니치, ` : CAT_NAME[v.cat] ? `${CAT_NAME[v.cat]} 카테고리, ` : '';
+  const money = `${seg}추정 수익 <b>${usd(v.rev)}</b>(약 ${fmt(v.rev*USD_KRW)}원)`;
   if(isShorts(v)) return `💰 쇼츠라 같은 조회수여도 롱폼의 약 1/10 수익 — ${money}`;
   if(v.dur>=480) return `💰 8분 이상이라 미드롤 광고가 붙어요 — ${money}`;
   return `💰 ${money}`;
@@ -566,6 +620,11 @@ function currentVideos(){
   if(state.chf) vids=vids.filter(v=>v.ch===state.chf);
   if(state.format==='shorts') vids=vids.filter(isShorts);
   if(state.format==='long') vids=vids.filter(v=>v.dur>180);
+  if(state.subs!=='all'){ // 구독자 비공개(subs<=0)는 '전체'에서만 보인다 — 구간에 넣을 근거가 없으므로
+    const [lo,hi]=state.subs.split('-').map(Number);
+    vids=vids.filter(v=>v.subs>0 && v.subs>=lo && v.subs<hi);
+  }
+  if(state.nc) vids=vids.filter(v=>v.niche && v.niche.id===state.nc);
   if(state.kw) vids=vids.filter(v=>v.title.toLowerCase().includes(state.kw));
   if(state.money){ // 쇼츠 제외 + 남은 목록의 예상수익 중앙값 이상
     vids=vids.filter(v=>!isShorts(v));
@@ -617,8 +676,19 @@ function render(){
     <div class="ins"><div class="k">평균 참여율 <small>(좋아요+댓글/조회)</small></div><div class="v">${avgEng.toFixed(1)}<small>%</small></div></div>
     <div class="ins"><div class="k">💰 목록 전체 예상 수익 <small>(추정치)</small></div><div class="v">${usd(revSum)}<small> ≈${fmt(revSum*USD_KRW)}원</small></div></div>`;
 
+  // 💰 니치 칩 — 니치 필터 자신은 제외한 목록에서 세야 재클릭으로 해제할 수 있다
+  const base = state.tab==='ALL'?Object.values(state.data).flat():(state.data[state.tab]||[]);
+  const ncnt={}, nseen=new Set();
+  base.forEach(v=>{ if(nseen.has(v.id)) return; nseen.add(v.id); const n=nicheOf(v.title); if(n) ncnt[n.id]=(ncnt[n.id]||0)+1; });
+  if(state.nc && !ncnt[state.nc]) ncnt[state.nc]=0; // 저장된 필터가 이번 목록에 없어도 해제할 칩은 남긴다
+  const nList=Object.entries(ncnt).sort((a,b)=>b[1]-a[1]);
+  $('nichelist').innerHTML = nList.length
+    ? nList.map(([id,c])=>{ const n=NICHE.find(x=>x.id===id);
+        return `<button class="kw ${state.nc===id?'on':''}" data-nc="${id}">${n.name}<small>(${c})</small></button>`; }).join('')
+    : '<span style="color:var(--sub);font-size:13px">이번 목록의 제목에선 수익 니치가 잡히지 않았어요.</span>';
+
   // 키워드
-  const kws=extractKeywords(state.tab==='ALL'?Object.values(state.data).flat():(state.data[state.tab]||[]));
+  const kws=extractKeywords(base);
   $('kwlist').innerHTML = kws.length
     ? kws.map(([w,c])=>`<button class="kw ${state.kw===w?'on':''}" data-kw="${esc(w)}">${esc(w)}<small>${c}</small></button>`).join('')
     : '<span style="color:var(--sub);font-size:13px">이번 영상들의 제목엔 2번 이상 겹치는 단어가 없네요 — 오류가 아니라 정상이에요. 🌍 통합 탭에서 보면 더 잘 잡힙니다.</span>';
@@ -648,7 +718,10 @@ function render(){
           ${v.delta?`<span class="delta">▲ ${fmt(v.delta.dv)} (${v.delta.hrs<1?'1시간 미만':v.delta.hrs<24?Math.round(v.delta.hrs)+'시간':Math.round(v.delta.hrs/24)+'일'} 사이)</span>`:''}
         </div>
         <div class="labelrow">
-          <span class="label ${lb.cls}">${lb.txt}</span>
+          <span class="lgroup">
+            <span class="label ${lb.cls}">${lb.txt}</span>
+            ${v.niche?`<span class="nb">${v.niche.name}</span>`:''}
+          </span>
           <button class="star ${saved?'on':''}" data-save="${esc(v.id)}">${saved?'⭐ 저장됨':'☆ 저장'}</button>
         </div>
         <div class="why">💬 ${lb.why}<br>${revNote(v)}</div>
@@ -705,18 +778,17 @@ function renderReport(vids){
   const chHtml=top.map(c=>
     `<div class="chrow ${state.chf===c.ch?'on':''}" data-chf="${esc(c.ch)}"><span class="cn">${state.chf===c.ch?'✕ ':''}${esc(c.ch)}</span><span class="cs">${c.n}개 · 구독 ${c.subs>0?fmt(c.subs):'?'}</span></div>`).join('');
 
-  // 💰 지금 돈 되는 카테고리 (카테고리별 예상수익 합계 · cat 없는 구 데이터면 생략)
-  let moneyRep='';
-  if(vids.some(v=>v.cat)){
-    const cm={};
-    vids.forEach(v=>{ if(v.cat) cm[v.cat]=(cm[v.cat]||0)+v.rev; });
-    const cTop=Object.entries(cm).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const cMax=cTop[0][1]||1;
-    const catHtml=cTop.map(([id,s],i)=>
-      `<div class="row ${i===0?'hot':''}"><span class="lbl" style="width:82px">${CAT_NAME[id]||'기타'}</span><span class="bar"><i style="width:${s/cMax*100}%"></i></span><span class="val" style="width:62px">${usd(s)}</span></div>`).join('');
-    moneyRep=`<div class="rep"><div class="k">💰 지금 돈 되는 카테고리 (예상 수익 합계)</div>${catHtml}
-      <div style="font-size:11.5px;color:var(--sub);margin-top:9px">※ 수익은 공개 RPM 평균 기반 <b>추정치</b>입니다 — 실제 정산액이 아니에요.</div></div>`;
-  }
+  // 💰 지금 돈 되는 니치 (니치별 예상수익 합계 · 제목만 있으면 되니 cat 유무와 무관하게 항상 나온다)
+  const nm={}; let unc=0;
+  vids.forEach(v=>{ if(v.niche) nm[v.niche.id]=(nm[v.niche.id]||0)+v.rev; else unc++; });
+  const nTop=Object.entries(nm).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const nMax=nTop.length?nTop[0][1]:1;
+  const nicheHtml=nTop.length
+    ? nTop.map(([id,s],i)=>{ const n=NICHE.find(x=>x.id===id);
+        return `<div class="row ${i===0?'hot':''}"><span class="lbl" style="width:104px">${n.name}</span><span class="bar"><i style="width:${s/nMax*100}%"></i></span><span class="val" style="width:62px">${usd(s)}</span></div>`; }).join('')
+    : '<div style="font-size:12.5px;color:var(--sub)">이번 목록은 제목만으로 니치가 잡히지 않았어요.</div>';
+  const moneyRep=`<div class="rep"><div class="k">💰 지금 돈 되는 니치 (예상 수익 합계)</div>${nicheHtml}
+    <div style="font-size:11.5px;color:var(--sub);margin-top:9px">미분류 <b>${Math.round(unc/vids.length*100)}%</b> (${unc}/${vids.length}개) — 제목 키워드 사전에 없는 영상이에요.<br>※ 수익은 공개 RPM 평균 기반 <b>추정치</b>입니다 — 실제 정산액이 아니에요.</div></div>`;
 
   el.innerHTML=`
     <div class="rep"><div class="k">✍️ 제목 공식 — 지금 뜨는 제목은 이렇게 생겼어요</div>${tHtml}</div>
@@ -803,6 +875,7 @@ $('selSource').onchange = e=>{
   if(!state.demo) loadAll(false);
 };
 $('selFormat').onchange = e=>{ state.format=e.target.value; saveCfg(); render(); };
+$('selSubs').onchange = e=>{ state.subs=e.target.value; saveCfg(); render(); };
 $('selSort').onchange = e=>{ state.sort=e.target.value; saveCfg(); render(); };
 $('btnOpp').onclick = ()=>{ state.opp=!state.opp; render(); };
 $('btnMoney').onclick = ()=>{ state.money=!state.money; saveCfg(); render(); };
@@ -837,13 +910,15 @@ document.addEventListener('click', e=>{
   }
   const tab=e.target.closest('.tab[data-tab]');
   if(tab){ state.tab=tab.dataset.tab; render(); }
+  const nc=e.target.closest('.kw[data-nc]');
+  if(nc){ state.nc = state.nc===nc.dataset.nc ? null : nc.dataset.nc; saveCfg(); render(); return; }
   const kw=e.target.closest('.kw[data-kw]');
   if(kw){ state.kw = state.kw===kw.dataset.kw ? null : kw.dataset.kw; render(); }
 });
 
 /* ================= 시작 ================= */
 (async function init(){
-  $('selSource').value=state.source; $('selFormat').value=state.format; $('selSort').value=state.sort;
+  $('selSource').value=state.source; $('selFormat').value=state.format; $('selSort').value=state.sort; $('selSubs').value=state.subs;
   addQuota(0);
   // 1순위: 깃허브 자동 수집 데이터 (호스팅 모드 — 키 불필요)
   try{
