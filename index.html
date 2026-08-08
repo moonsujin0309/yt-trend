@@ -196,9 +196,12 @@ dialog .keyrow{margin-bottom:10px}
       <option value="ratio">구독자 대비 배율 순 (알고리즘 픽)</option>
       <option value="eng">참여율 순</option>
       <option value="deltaRate">▲ 최근 증가 속도 순 (스냅샷 비교)</option>
+      <option value="rev">💰 예상 수익 순</option>
+      <option value="golden">⭐ 골든 스코어 순 (돈 + 따라하기 좋음)</option>
     </select>
     <div class="divider"></div>
     <button class="chipbtn" id="btnOpp" title="구독자 10만 미만인데 구독자의 3배 이상 조회수가 난 영상만 — 신규 채널이 벤치마크할 수 있는 영상">🌱 기회 영상만</button>
+    <button class="chipbtn" id="btnMoney" title="쇼츠를 빼고, 예상 수익이 현재 목록 중앙값 이상인 영상만 — 조회수는 높아도 돈은 안 되는 영상을 걸러냅니다">💰 돈되는 영상만</button>
     <div class="spacer"></div>
     <button class="iconbtn" id="btnBoard">⭐ 저장함 <span id="boardCnt"></span></button>
     <button class="iconbtn" id="btnCsv" title="현재 목록을 엑셀용 CSV 파일로 저장">⬇ CSV</button>
@@ -215,6 +218,7 @@ dialog .keyrow{margin-bottom:10px}
 <footer>
   <span id="quotaInfo"></span>
   <span>💡 "구독자 대비 N배"가 높을수록 구독자 힘이 아니라 알고리즘 추천으로 뜬 영상이에요 — 신규 유튜버에게 가장 중요한 신호!</span>
+  <span>💰 수익은 공개 RPM 평균 기반 <b>추정치</b>입니다 (국가·카테고리·영상 길이로 계산) — 실제 정산액과 다를 수 있어요.</span>
 </footer>
 
 <div id="toast"></div>
@@ -250,6 +254,19 @@ const STOP = new Set(('the,a,an,and,or,of,to,in,on,for,with,is,are,was,be,this,t
  '그리고,하지만,있는,하는,있다,합니다,입니다,진짜,완전,이거,저거,근데,너무,정말').split(','));
 const CACHE_TTL = 30*60*1000; // 30분
 
+/* ========== 💰 수익 추정 파라미터 ==========
+   공개된 RPM 추정치의 평균값이라 실제 수익과는 다를 수 있음 (채널·시즌·광고주에 따라 2~3배 차이).
+   추정을 조정하려면 아래 숫자만 고치면 카드·정렬·인사이트·리포트·CSV 전체에 반영됨. */
+const RPM = {US:6.0, GB:5.5, JP:3.5, KR:2.2, BR:1.0, IN:0.6, ID:0.6, VN:0.7}; // USD / 1000뷰 (롱폼 기준)
+const RPM_ETC = 1.5;                                                          // 표에 없는 국가
+const CAT_MULT = {27:1.8, 28:1.7, 26:1.5, 2:1.4, 19:1.2, 22:1.0, 24:0.8, 23:0.8,
+                  17:0.8, 15:0.8, 20:0.7, 25:0.7, 1:0.7, 29:0.6, 10:0.5};     // YouTube categoryId → 광고단가 배율
+const CAT_NAME = {1:'영화·애니', 2:'자동차', 10:'음악', 15:'동물', 17:'스포츠', 19:'여행', 20:'게임',
+                  22:'인물·블로그', 23:'코미디', 24:'엔터', 25:'뉴스·정치', 26:'하우투·스타일',
+                  27:'교육', 28:'과학기술', 29:'비영리'};
+const FMT_MULT = {shorts:0.12, mid:1.0, long:1.35}; // 쇼츠(≤3분) / 3~8분 / 8분↑(미드롤 가능)
+const USD_KRW = 1380; // ← 환율 갱신 지점
+
 /* ================= 상태 ================= */
 let staticData = null; // 깃허브 자동 수집 데이터 (호스팅 모드)
 let state = {
@@ -259,11 +276,12 @@ let state = {
   source: 'hot', tab: 'ALL', format: 'all', sort: 'views',
   kw: null, data: {}, demo: false, lastFetch: 0,
   opp: false,   // 🌱 기회 영상만 (소형 채널 + 알고리즘 픽)
+  money: false, // 💰 돈되는 영상만 (쇼츠 제외 + 예상수익 중앙값 이상)
   board: false, // ⭐ 저장함 보기
   chf: null     // 채널 필터
 };
 try { Object.assign(state, JSON.parse(localStorage.getItem(LS.cfg)||'{}'), {mode:'key', kw:null, data:{}, demo:false, opp:false, board:false, chf:null}); } catch(e){}
-function saveCfg(){ localStorage.setItem(LS.cfg, JSON.stringify({countries:state.countries, source:state.source, format:state.format, sort:state.sort})); }
+function saveCfg(){ localStorage.setItem(LS.cfg, JSON.stringify({countries:state.countries, source:state.source, format:state.format, sort:state.sort, money:state.money})); }
 
 /* ================= 유틸 ================= */
 const $ = id => document.getElementById(id);
@@ -274,6 +292,12 @@ function fmt(n){
   if(n>=1e4) return Math.round(n/1e4).toLocaleString()+'만';
   return Math.round(n).toLocaleString();
 }
+function usd(n){ // $1 미만은 소수점 한 자리, 그 이상은 반올림
+  if(n==null||isNaN(n)) return '-';
+  if(n>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
+  return '$'+(n<1 ? n.toFixed(1) : Math.round(n).toLocaleString());
+}
+const isShorts = v => v.dur>0 && v.dur<=180; // dur=0은 길이 미상 → 쇼츠로 치지 않음
 function ago(iso){
   const h = (Date.now()-new Date(iso).getTime())/3600e3;
   if(h<1) return '방금 전';
@@ -356,6 +380,7 @@ function buildVideo(v, chMap, cc){
     id:v.id, title:v.snippet.title, ch:v.snippet.channelTitle,
     thumb:(v.snippet.thumbnails&&(v.snippet.thumbnails.medium||v.snippet.thumbnails.default)||{}).url||'',
     pub:v.snippet.publishedAt, cc, views, likes, comments, subs, dur,
+    cat:+v.snippet.categoryId||0, // 수익 추정용 — snippet에 이미 들어있어 추가 호출 없음
     vph: views/hrs,
     ratio: subs>0 ? views/subs : -1,
     eng: views>0 ? (likes+comments)/views*100 : 0,
@@ -416,7 +441,6 @@ async function loadAll(force){
     else { state.data[cc]=[]; failed.push(`${COUNTRIES[cc].f}${COUNTRIES[cc].n}: ${r.reason.message}`); }
   });
   saveSnap();
-  enrichData(state.data);
   state.lastFetch=Date.now();
   if(!state.demo){
     try{ localStorage.setItem(LS.cache, JSON.stringify({t:state.lastFetch, source:state.source, data:state.data})); }catch(e){}
@@ -426,11 +450,18 @@ async function loadAll(force){
   render();
 }
 
-/* ================= 파생값 계산 ================= */
-function enrichData(dataObj){
-  Object.values(dataObj||{}).forEach(arr=>(arr||[]).forEach(v=>{
-    v.deltaRate = v.delta ? v.delta.dv/Math.max(1,v.delta.hrs) : 0;
-  }));
+/* ================= 파생값 계산 =================
+   currentVideos() 한 곳에서만 호출한다 — 정적/키/데모/캐시/저장함 모든 경로가 여기를 지나므로
+   호출부마다 붙일 필요가 없다. 순수 계산이라 여러 번 돌아도 결과가 같다. */
+function enrich(v){
+  v.deltaRate = v.delta ? v.delta.dv/Math.max(1,v.delta.hrs) : 0;
+  // 💰 예상 수익: cat 없는 구 데이터는 배율 1.0으로 폴백
+  const fm = isShorts(v) ? FMT_MULT.shorts : v.dur>=480 ? FMT_MULT.long : FMT_MULT.mid;
+  v.rev = v.views/1000 * (RPM[v.cc]||RPM_ETC) * (CAT_MULT[v.cat]||1) * fm;
+  const hrs = Math.max(1,(Date.now()-new Date(v.pub).getTime())/3600e3);
+  v.revph = v.rev/hrs;                                             // 시간당 예상 수익
+  v.golden = v.revph * Math.min(v.ratio>0?v.ratio:1, 10);          // 돈 + 재현가능성
+  return v;
 }
 
 /* ================= ⭐ 리서치 보드 (저장함) ================= */
@@ -450,9 +481,9 @@ function toggleSave(id){
 
 /* ================= ⬇ CSV 내보내기 ================= */
 function buildCsv(vids){
-  const head=['순위','제목','채널','구독자','조회수','시간당조회','구독자대비배율','참여율%','길이(초)','업로드','국가','URL'];
+  const head=['순위','제목','채널','구독자','조회수','시간당조회','구독자대비배율','참여율%','길이(초)','예상수익($)','업로드','국가','URL'];
   const rows=vids.map((v,i)=>[i+1, v.title, v.ch, v.subs>0?v.subs:'', v.views, Math.round(v.vph),
-    v.ratio>0?v.ratio.toFixed(2):'', v.eng.toFixed(2), v.dur, v.pub, v.cc, 'https://youtu.be/'+v.id]);
+    v.ratio>0?v.ratio.toFixed(2):'', v.eng.toFixed(2), v.dur, v.rev.toFixed(2), v.pub, v.cc, 'https://youtu.be/'+v.id]);
   return String.fromCharCode(0xFEFF)+[head,...rows].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\r\n');
 }
 function exportCsv(){
@@ -468,7 +499,6 @@ function exportCsv(){
 /* ================= 정적 모드 (깃허브 자동 수집 데이터) ================= */
 function applyStatic(){
   state.data = staticData.sources[state.source] || {};
-  enrichData(state.data);
   state.countries = staticData.countries.filter(cc=>COUNTRIES[cc]);
   state.lastFetch = staticData.t;
   if(state.tab!=='ALL' && !state.data[state.tab]) state.tab='ALL';
@@ -491,6 +521,15 @@ function labelOf(v){
   if(r>=3)  return {cls:'l-algo', txt:'📈 알고리즘 픽 · '+rs, why:`구독자(${fmt(v.subs)}명) 대비 ${rs} 조회 — 추천 알고리즘의 노출이 성장을 견인했어요.`};
   if(r>=0.7) return {cls:'l-bal', txt:'⚖️ 균형 · '+rs, why:`구독자(${fmt(v.subs)}명)와 신규 유입이 함께 만든 조회수예요.`};
   return {cls:'l-fan', txt:'👥 구독자 파워 · '+rs, why:`대형 채널(구독자 <b>${fmt(v.subs)}명</b>)이라 뜬 영상 — 팬덤 기반 조회수라 신규 채널이 참고하긴 어려워요.`};
+}
+
+/* 💰 수익 한 줄 설명 (labelOf와 분리 — 라벨은 '왜 떴나', 이쪽은 '얼마 버나') */
+function revNote(v){
+  const cat = CAT_NAME[v.cat] ? `${CAT_NAME[v.cat]} 카테고리, ` : '';
+  const money = `${cat}추정 수익 <b>${usd(v.rev)}</b>(약 ${fmt(v.rev*USD_KRW)}원)`;
+  if(isShorts(v)) return `💰 쇼츠라 같은 조회수여도 롱폼의 약 1/10 수익 — ${money}`;
+  if(v.dur>=480) return `💰 8분 이상이라 미드롤 광고가 붙어요 — ${money}`;
+  return `💰 ${money}`;
 }
 
 /* ================= 키워드 추출 ================= */
@@ -522,11 +561,17 @@ function currentVideos(){
   } else {
     vids = state.data[state.tab]||[];
   }
+  vids.forEach(enrich);
   if(state.opp) vids=vids.filter(v=>v.subs>0&&v.subs<100000&&v.ratio>=3);
   if(state.chf) vids=vids.filter(v=>v.ch===state.chf);
-  if(state.format==='shorts') vids=vids.filter(v=>v.dur>0&&v.dur<=180);
+  if(state.format==='shorts') vids=vids.filter(isShorts);
   if(state.format==='long') vids=vids.filter(v=>v.dur>180);
   if(state.kw) vids=vids.filter(v=>v.title.toLowerCase().includes(state.kw));
+  if(state.money){ // 쇼츠 제외 + 남은 목록의 예상수익 중앙값 이상
+    vids=vids.filter(v=>!isShorts(v));
+    const med = vids.length ? [...vids].sort((a,b)=>a.rev-b.rev)[Math.floor(vids.length/2)].rev : 0;
+    vids=vids.filter(v=>v.rev>=med);
+  }
   const key=state.sort;
   vids=[...vids].sort((a,b)=>(b[key]||0)-(a[key]||0));
   return vids;
@@ -548,6 +593,7 @@ function render(){
 
   // 툴바 버튼 상태
   $('btnOpp').classList.toggle('on', state.opp);
+  $('btnMoney').classList.toggle('on', state.money);
   const boardArr=getBoard();
   $('boardCnt').textContent = boardArr.length?`(${boardArr.length})`:'';
   $('btnBoard').style.background = state.board?'#332a14':'';
@@ -562,12 +608,14 @@ function render(){
   const smallCh=labeled.filter(v=>v.subs<100000&&v.ratio>=3).length;
   const shorts=vids.filter(v=>v.dur>0&&v.dur<=180).length;
   const avgEng=vids.length?(vids.reduce((s,v)=>s+v.eng,0)/vids.length):0;
+  const revSum=vids.reduce((s,v)=>s+v.rev,0);
   $('insight').innerHTML=`
     <div class="ins"><div class="k">영상 수</div><div class="v">${vids.length}<small>개</small></div></div>
     <div class="ins"><div class="k">📈 알고리즘 픽 비율 <small>(구독자의 3배↑ 조회)</small></div><div class="v">${labeled.length?Math.round(algo/labeled.length*100):0}<small>%</small></div></div>
     <div class="ins"><div class="k">🌱 10만 미만 채널의 대박 <small>(신규 유튜버 기회 신호)</small></div><div class="v">${smallCh}<small>개</small></div></div>
     <div class="ins"><div class="k">🩳 쇼츠 비중</div><div class="v">${vids.length?Math.round(shorts/vids.length*100):0}<small>%</small></div></div>
-    <div class="ins"><div class="k">평균 참여율 <small>(좋아요+댓글/조회)</small></div><div class="v">${avgEng.toFixed(1)}<small>%</small></div></div>`;
+    <div class="ins"><div class="k">평균 참여율 <small>(좋아요+댓글/조회)</small></div><div class="v">${avgEng.toFixed(1)}<small>%</small></div></div>
+    <div class="ins"><div class="k">💰 목록 전체 예상 수익 <small>(추정치)</small></div><div class="v">${usd(revSum)}<small> ≈${fmt(revSum*USD_KRW)}원</small></div></div>`;
 
   // 키워드
   const kws=extractKeywords(state.tab==='ALL'?Object.values(state.data).flat():(state.data[state.tab]||[]));
@@ -596,13 +644,14 @@ function render(){
           <span>조회 <b>${fmt(v.views)}</b></span>
           <span>시간당 <b>${fmt(v.vph)}</b></span>
           <span>참여율 <b>${v.eng.toFixed(1)}%</b></span>
+          <span title="공개 RPM 평균 기반 추정치">💰 <b>${usd(v.rev)}</b> ≈${fmt(v.rev*USD_KRW)}원</span>
           ${v.delta?`<span class="delta">▲ ${fmt(v.delta.dv)} (${v.delta.hrs<1?'1시간 미만':v.delta.hrs<24?Math.round(v.delta.hrs)+'시간':Math.round(v.delta.hrs/24)+'일'} 사이)</span>`:''}
         </div>
         <div class="labelrow">
           <span class="label ${lb.cls}">${lb.txt}</span>
           <button class="star ${saved?'on':''}" data-save="${esc(v.id)}">${saved?'⭐ 저장됨':'☆ 저장'}</button>
         </div>
-        <div class="why">💬 ${lb.why}</div>
+        <div class="why">💬 ${lb.why}<br>${revNote(v)}</div>
       </div>
     </div>`;
   }).join('') || `<div style="color:var(--sub);padding:40px;text-align:center;grid-column:1/-1">${state.board?'저장한 영상이 없어요. 카드의 ☆ 저장 버튼으로 리서치용 영상을 담아보세요.':'조건에 맞는 영상이 없어요.'}</div>`;
@@ -656,34 +705,49 @@ function renderReport(vids){
   const chHtml=top.map(c=>
     `<div class="chrow ${state.chf===c.ch?'on':''}" data-chf="${esc(c.ch)}"><span class="cn">${state.chf===c.ch?'✕ ':''}${esc(c.ch)}</span><span class="cs">${c.n}개 · 구독 ${c.subs>0?fmt(c.subs):'?'}</span></div>`).join('');
 
+  // 💰 지금 돈 되는 카테고리 (카테고리별 예상수익 합계 · cat 없는 구 데이터면 생략)
+  let moneyRep='';
+  if(vids.some(v=>v.cat)){
+    const cm={};
+    vids.forEach(v=>{ if(v.cat) cm[v.cat]=(cm[v.cat]||0)+v.rev; });
+    const cTop=Object.entries(cm).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const cMax=cTop[0][1]||1;
+    const catHtml=cTop.map(([id,s],i)=>
+      `<div class="row ${i===0?'hot':''}"><span class="lbl" style="width:82px">${CAT_NAME[id]||'기타'}</span><span class="bar"><i style="width:${s/cMax*100}%"></i></span><span class="val" style="width:62px">${usd(s)}</span></div>`).join('');
+    moneyRep=`<div class="rep"><div class="k">💰 지금 돈 되는 카테고리 (예상 수익 합계)</div>${catHtml}
+      <div style="font-size:11.5px;color:var(--sub);margin-top:9px">※ 수익은 공개 RPM 평균 기반 <b>추정치</b>입니다 — 실제 정산액이 아니에요.</div></div>`;
+  }
+
   el.innerHTML=`
     <div class="rep"><div class="k">✍️ 제목 공식 — 지금 뜨는 제목은 이렇게 생겼어요</div>${tHtml}</div>
     <div class="rep"><div class="k">⏱️ 뜨는 영상 길이 분포</div>${durHtml}</div>
     <div class="rep"><div class="k">🕐 뜬 영상들의 업로드 시간대 (내 시간 기준)</div>${hourHtml}</div>
-    <div class="rep"><div class="k">🏆 이 목록을 지배하는 채널 (클릭 = 해당 채널만 필터)</div>${chHtml}</div>`;
+    <div class="rep"><div class="k">🏆 이 목록을 지배하는 채널 (클릭 = 해당 채널만 필터)</div>${chHtml}</div>
+    ${moneyRep}`;
 }
 
 /* ================= 데모 데이터 ================= */
 function demoData(){
   const now=Date.now(), h=3600e3;
-  const mk=(id,title,ch,subs,views,likes,comments,hrsAgo,dur,cc)=>({
-    id,title,ch,thumb:'',pub:new Date(now-hrsAgo*h).toISOString(),cc,views,likes,comments,subs,dur,
+  const mk=(id,title,ch,subs,views,likes,comments,hrsAgo,dur,cc,cat)=>({
+    id,title,ch,thumb:'',pub:new Date(now-hrsAgo*h).toISOString(),cc,views,likes,comments,subs,dur,cat,
     vph:views/Math.max(1,hrsAgo), ratio:subs>0?views/subs:-1, eng:views>0?(likes+comments)/views*100:0, delta:null});
   return {
     KR:[
-      mk('demo1','무명 개그맨의 급식 브이로그 갑자기 터진 이유','급식왕TV',42000,3100000,182000,9400,18,52,'KR'),
-      mk('demo2','[MV] 신곡 티저 최초공개','대형기획사',8200000,5400000,890000,120000,30,190,'KR'),
-      mk('demo3','서울 자취방 월세 실화냐... 부동산 브이로그','자취생K',9800,890000,45000,3100,40,420,'KR'),
-      mk('demo4','AI로 일주일 만에 앱 만들기 도전','코딩하는직장인',156000,720000,38000,2900,26,780,'KR')
+      mk('demo1','무명 개그맨의 급식 브이로그 갑자기 터진 이유','급식왕TV',42000,3100000,182000,9400,18,52,'KR',23),
+      mk('demo2','[MV] 신곡 티저 최초공개','대형기획사',8200000,5400000,890000,120000,30,190,'KR',10),
+      mk('demo3','서울 자취방 월세 실화냐... 부동산 브이로그','자취생K',9800,890000,45000,3100,40,420,'KR',22),
+      mk('demo4','AI로 일주일 만에 앱 만들기 도전','코딩하는직장인',156000,720000,38000,2900,26,780,'KR',28)
     ],
     US:[
-      mk('demo5','I Built a Secret Room in My House','MegaBuilder',24000000,18000000,1400000,88000,36,1200,'US'),
-      mk('demo6','This tiny kitchen hack went viral','CookSmart',31000,4200000,310000,12000,20,45,'US'),
-      mk('demo7','Why Everyone Is Talking About This Game','IndieScope',87000,1900000,140000,9800,44,660,'US')
+      mk('demo5','I Built a Secret Room in My House','MegaBuilder',24000000,18000000,1400000,88000,36,1200,'US',24),
+      mk('demo6','This tiny kitchen hack went viral','CookSmart',31000,4200000,310000,12000,20,45,'US',26),
+      mk('demo7','Why Everyone Is Talking About This Game','IndieScope',87000,1900000,140000,9800,44,660,'US',20),
+      mk('demo8','How I Passed the CPA Exam in 8 Weeks','StudyDesk',63000,540000,29000,3400,29,1020,'US',27)
     ],
     JP:[
-      mk('demo8','猫が冷蔵庫を開ける方法を覚えた結果','ねこチャンネル',54000,2800000,190000,7600,22,58,'JP'),
-      mk('demo9','【検証】1週間コンビニ飯生活','大食いユウタ',1200000,950000,61000,4100,33,900,'JP')
+      mk('demo9','猫が冷蔵庫を開ける方法を覚えた結果','ねこチャンネル',54000,2800000,190000,7600,22,58,'JP',15),
+      mk('demo10','【検証】1週間コンビニ飯生活','大食いユウタ',1200000,950000,61000,4100,33,900,'JP',19)
     ]
   };
 }
@@ -719,7 +783,7 @@ $('btnSaveKey2').onclick = async ()=>{
 };
 
 $('btnDemo').onclick = ()=>{
-  state.demo=true; state.data=demoData(); enrichData(state.data); state.countries=['KR','US','JP']; state.lastFetch=Date.now();
+  state.demo=true; state.data=demoData(); state.countries=['KR','US','JP']; state.lastFetch=Date.now();
   showApp(); render();
 };
 
@@ -741,6 +805,7 @@ $('selSource').onchange = e=>{
 $('selFormat').onchange = e=>{ state.format=e.target.value; saveCfg(); render(); };
 $('selSort').onchange = e=>{ state.sort=e.target.value; saveCfg(); render(); };
 $('btnOpp').onclick = ()=>{ state.opp=!state.opp; render(); };
+$('btnMoney').onclick = ()=>{ state.money=!state.money; saveCfg(); render(); };
 $('btnBoard').onclick = ()=>{ state.board=!state.board; render(); };
 $('btnCsv').onclick = exportCsv;
 

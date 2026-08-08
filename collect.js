@@ -53,6 +53,7 @@ function build(v, chMap, cc) {
     id: v.id, title: v.snippet.title, ch: v.snippet.channelTitle,
     thumb: ((v.snippet.thumbnails && (v.snippet.thumbnails.medium || v.snippet.thumbnails.default)) || {}).url || '',
     pub: v.snippet.publishedAt, cc, views, likes, comments, subs,
+    cat: +v.snippet.categoryId || 0, // 수익 추정용 카테고리 (추가 API 호출 없음 — snippet에 이미 들어있음)
     dur: parseDur(v.contentDetails && v.contentDetails.duration),
     vph: +(views / hrs).toFixed(1),
     ratio: subs > 0 ? +(views / subs).toFixed(2) : -1,
