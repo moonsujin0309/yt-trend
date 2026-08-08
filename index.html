@@ -287,7 +287,7 @@ const USD_KRW = 1380; // ← 환율 갱신 지점
    ▶ 알려진 한계: 2글자 영문 키워드는 오탐이 난다 (베트남어 'Ai Cập'=이집트가 ai/IT로 잡힘).
      오탐이 거슬리면 해당 kw만 빼면 된다 — 분류가 줄 뿐 다른 로직은 건드릴 필요 없다. */
 const NICHE = [
- {id:'money', name:'💰 재테크/투자',   mul:2.2, kw:['주식','투자','부동산','재테크','코인','비트코인','적금','연금','대출','금리','월급','부업','절세','세금','경제','증권','배당','etf','수익률','stock','invest','crypto','bitcoin','finance','dividend','passive income','side hustle']},
+ {id:'money', name:'💰 재테크/투자',   mul:2.2, kw:['주식','투자','부동산','재테크','코인','비트코인','적금','연금','대출','금리','월급','부업','절세','세금','경제','증권','배당','etf','수익률','코스피','코스닥','증시','실적','상장','시총','환율','물가','나스닥','반도체주','stock','invest','crypto','bitcoin','finance','dividend','passive income','side hustle']},
  {id:'health',name:'🩺 건강/의학',     mul:1.9, kw:['건강','의학','병원','질병','다이어트','영양제','수술','의사','혈압','당뇨','통증','운동법','health','doctor','disease','diet','supplement','workout']},
  {id:'tech',  name:'🤖 AI/IT',        mul:1.9, kw:['인공지능','챗gpt','클로드','제미나이','미드저니','ai로','ai가','ai는','ai 툴','ai 영상','프로그래밍','코딩','개발','노션','엑셀','자동화','아이폰','갤럭시','앱추천','chatgpt','gpt','claude','gemini','midjourney','coding','software','automation','iphone','gadget','tech']},
  {id:'edu',   name:'📚 교육/커리어',   mul:1.7, kw:['공부','강의','영어','토익','수능','자격증','취업','면접','이직','연봉','생산성','study','english','learn','tutorial','course','career','productivity']},
@@ -309,17 +309,25 @@ const NICHE = [
  {id:'music', name:'🎵 음악',          mul:0.5, kw:['뮤직비디오','커버','노래','가사','앨범','official mv','music video','cover song','lyrics']}
 ];
 NICHE.forEach(n=>{ // 영문 키워드는 단어 경계 정규식 하나로 미리 합쳐둔다 (렌더마다 새로 만들지 않도록)
-  const ascii = n.kw.filter(w=>!/[^\x00-\x7F]/.test(w));
+  n._ascii = n.kw.filter(w=>!/[^\x00-\x7F]/.test(w));
   // 끝의 (e?s)?는 복수형(idols, recipes, matches)까지 잡기 위한 것 —
   // stockholm·foodie·matchmaking·newsletter 같은 오탐은 단어 경계가 여전히 걸러낸다
-  n._re  = ascii.length ? new RegExp('\\b(?:'+ascii.join('|')+')(?:e?s)?\\b','i') : null;
+  n._re  = n._ascii.length ? new RegExp('\\b(?:'+n._ascii.join('|')+')(?:e?s)?\\b','i') : null;
   n._sub = n.kw.filter(w=>/[^\x00-\x7F]/.test(w));
 });
 function nicheOf(title){
   const t = String(title||'').toLowerCase();
+  // 해시태그는 단어가 다 붙어 있어서(#fifaworldcup) 단어 경계로는 영원히 안 잡힌다.
+  // 그래서 제목을 [해시태그 덩어리 / 나머지 본문]으로 갈라서, 본문만 단어 경계로 매칭하고
+  // 해시태그 안에서는 부분매칭을 허용한다 — 오탐 위험이 해시태그 안으로만 갇힌다.
+  // ponytail: 단어 분할 사전 없이 가는 절충안. #stockholmtrip 이 money로 잡히는 건 감수한다.
+  //           오탐이 실제로 문제되면 그때 해시태그용 최소 길이 제한이나 제외 목록을 붙이면 된다.
+  const tags = (t.match(/#[^\s#]+/g)||[]).join(' ');
+  const body = tags ? t.replace(/#[^\s#]+/g,' ') : t;
   for(const n of NICHE){
-    if(n._sub.some(w=>t.includes(w))) return n;
-    if(n._re && n._re.test(t)) return n;
+    if(n._sub.some(w=>t.includes(w))) return n;              // 한글 등 비ASCII는 원래부터 부분매칭
+    if(n._re && n._re.test(body)) return n;                  // 본문: 단어 경계
+    if(tags && n._ascii.some(w=>tags.includes(w))) return n;  // 해시태그: 부분매칭 폴백
   }
   return null; // 사전에 없는 제목 — 이 비율은 리포트에 "미분류 N%"로 노출된다
 }
