@@ -61,16 +61,6 @@ select{background:var(--chip);color:var(--txt);border:1px solid var(--line);bord
 #fmtbar .tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
 #fmtbar .hint{font-size:12px;color:var(--sub)}
 
-/* ---------- 📌 AI 트렌드 브리핑 ---------- */
-#brief{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px 14px;margin-bottom:16px;display:none}
-#brief > .k{font-size:15.5px;font-weight:700;margin-bottom:10px}
-.bi{border-top:1px solid var(--line);padding:12px 0 0;margin-top:12px}
-.bi:first-of-type{border-top:none;padding-top:0;margin-top:0}
-.bi .bh{font-size:15px;font-weight:700;line-height:1.45}
-.bi .bd{font-size:12.5px;color:var(--sub);margin:5px 0 9px;line-height:1.55}
-.bi .ba{font-size:13.5px;color:#bfe0ff;background:#14283f;border-left:3px solid var(--accent2);padding:9px 13px;border-radius:0 8px 8px 0}
-#brief .bnote{font-size:11.5px;color:var(--sub);margin-top:12px}
-
 /* ---------- 인사이트 ---------- */
 #insight{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
 .ins{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
@@ -197,8 +187,6 @@ dialog .keyrow{margin-bottom:10px}
 <!-- ============ 메인 앱 ============ -->
 <div id="app" style="display:none">
   <div class="demo-banner" id="demoBanner">🧪 지금 보시는 건 <b>가짜 예시 데이터</b>예요. 실제 데이터를 보려면 ⚙️ 설정에서 API 키를 넣어주세요.</div>
-
-  <div id="brief"></div>
 
   <div class="bar" id="chipsBar">
     <span style="font-size:13px;color:var(--sub)">국가:</span>
@@ -364,7 +352,6 @@ let state = {
   countries: ['KR','US','JP'],
   source: 'hot', tab: 'ALL', format: 'all', sort: 'views', subs: 'all',
   kw: null, nc: null, data: {}, demo: false, lastFetch: 0,
-  insights: null, // 📌 AI 브리핑 (수집 시점에 서버가 구워 넣은 값 — 없으면 블록 자체를 숨김)
   opp: false,   // 🌱 기회 영상만 (소형 채널 + 알고리즘 픽)
   money: false, // 💰 돈되는 영상만 (쇼츠 제외 + 예상수익 중앙값 이상)
   board: false, // ⭐ 저장함 보기
@@ -502,7 +489,6 @@ async function fetchCountry(cc){
 }
 
 async function loadAll(force){
-  state.insights=null; // 라이브 API 모드엔 AI 브리핑이 없다 (데모에서 넘어온 예시도 여기서 지워진다)
   // 캐시 확인
   if(!force && !state.demo){
     try{
@@ -593,7 +579,6 @@ function applyStatic(){
   state.data = staticData.sources[state.source] || {};
   state.countries = staticData.countries.filter(cc=>COUNTRIES[cc]);
   state.lastFetch = staticData.t;
-  state.insights = Array.isArray(staticData.insights) ? staticData.insights : null; // 구 데이터엔 없다 → null → 숨김
   if(state.tab!=='ALL' && !state.data[state.tab]) state.tab='ALL';
   render();
 }
@@ -676,24 +661,7 @@ function currentVideos(){
   return vids;
 }
 
-/* 📌 AI 트렌드 브리핑 — 수집 시점에 만들어져 latest.json에 들어온 값을 그대로 보여준다.
-   필터와 무관한 전역 요약이라 currentVideos()와 엮지 않는다(그래서 툴바보다 위에 둔다).
-   insights가 없으면(구 데이터·키 미설정·라이브 API 모드) 블록 자체를 숨긴다 — 빈 껍데기 금지. */
-function renderBrief(){
-  const el=$('brief'), ins=state.insights;
-  if(!Array.isArray(ins) || !ins.length){ el.style.display='none'; el.innerHTML=''; return; }
-  el.style.display='block';
-  el.innerHTML = `<div class="k">📌 지금 이게 뜬다</div>`
-    + ins.map(x=>`<div class="bi">
-        <div class="bh">${esc(x.headline||'')}</div>
-        <div class="bd">${esc(x.detail||'')}</div>
-        <div class="ba">💡 ${esc(x.action||'')}</div>
-      </div>`).join('')
-    + `<div class="bnote">🤖 AI가 수집 시각 기준으로 작성 — 참고용이에요.</div>`;
-}
-
 function render(){
-  renderBrief();
   // 국가 칩 (정적 모드에서는 수집된 국가가 전부 탭으로 나오므로 칩 숨김)
   $('chipsBar').style.display = state.mode==='static' ? 'none' : '';
   if(state.mode!=='static'){
@@ -857,18 +825,6 @@ function renderReport(vids){
 }
 
 /* ================= 데모 데이터 ================= */
-// 데모에서도 브리핑이 어떤 물건인지 보이게 하는 예시 (실제 AI 출력과 같은 형태)
-const DEMO_INSIGHTS=[
-  {headline:'구독자 4.2만 급식왕TV의 학교 급식 브이로그가 310만 조회로 목록 1위',
-   detail:'구독자의 74배 조회 — 구독자가 아니라 알고리즘이 밀어준 영상이에요. 52초 쇼츠인데 참여율 6.2%로 롱폼 평균보다 높습니다.',
-   action:'내 지역 고등학교 급식 vs 편의점 도시락 가격·양 비교 60초 쇼츠 (썸네일에 가격 숫자만 크게)'},
-  {headline:'미국에서 "비밀 방 만들기" 하우스 개조 롱폼(20분)이 1800만 조회',
-   detail:'20분짜리인데 조회수 1위 — 긴 영상이 안 통한다는 통념과 반대예요. 제목이 "I Built a Secret Room"처럼 결과가 아니라 행위를 앞세웁니다.',
-   action:'집 안 자투리 공간(계단 밑·붙박이장) 하나를 수납방으로 바꾸는 과정 15분 롱폼, 제목은 "옷장 안에 방을 만들었습니다"'},
-  {headline:'코딩·CPA 등 자격증/개발 소재가 구독자 6만~15만대 중소 채널에서 50만~70만 조회',
-   detail:'대형 채널이 없는 구간이라 신규 채널이 뚫기 쉬운 영역이에요. 두 영상 모두 12~17분 롱폼이라 미드롤 광고가 붙습니다.',
-   action:'"AI로 일주일 만에 앱 만들기"를 따라 해보고 실제로 어디서 막혔는지 기록한 12분 후기 영상'}
-];
 function demoData(){
   const now=Date.now(), h=3600e3;
   const mk=(id,title,ch,subs,views,likes,comments,hrsAgo,dur,cc,cat)=>({
@@ -926,7 +882,6 @@ $('btnSaveKey2').onclick = async ()=>{
 
 $('btnDemo').onclick = ()=>{
   state.demo=true; state.data=demoData(); state.countries=['KR','US','JP']; state.lastFetch=Date.now();
-  state.insights=DEMO_INSIGHTS;
   showApp(); render();
 };
 
