@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>쇼핑 쇼츠 만들기 — 순서대로 따라하기</title>
+<style>
+:root{
+  --bg:#0f1117; --panel:#181c26; --panel2:#1f2432; --line:#2a3040;
+  --txt:#e8ecf4; --sub:#9aa3b5; --accent:#ff4d6d; --accent2:#4dabff;
+  --good:#3ddc84; --warn:#ffb74d; --chip:#252b3b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI','Malgun Gothic',sans-serif;line-height:1.6}
+a{color:var(--accent2)}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:8px}
+header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header h1{font-size:20px;font-weight:700}
+header h1 span{color:var(--accent)}
+.spacer{flex:1}
+.iconbtn{background:var(--chip);color:var(--txt);padding:8px 14px;font-size:13px;text-decoration:none;display:inline-block}
+.iconbtn:hover{background:#303850}
+main{max-width:820px;margin:0 auto;padding:24px 20px 80px}
+
+.lead{color:var(--sub);font-size:14.5px;margin-bottom:22px}
+
+/* 경고 */
+.danger{background:#2a1519;border:1px solid #6b2733;border-radius:14px;padding:18px 20px;margin-bottom:24px}
+.danger h2{font-size:16.5px;color:#ff8fa3;margin-bottom:10px}
+.danger p{font-size:14px;margin-bottom:10px}
+.danger ul{margin:10px 0 4px 20px;font-size:14px}
+.danger li{margin-bottom:7px}
+.danger .src{font-size:12px;color:var(--sub);margin-top:12px}
+
+/* 구조 설명 */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:10px}
+.way{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.way h3{font-size:15px;margin-bottom:8px}
+.way .tagline{font-size:12.5px;color:var(--good);margin-bottom:10px}
+.way p{font-size:13.5px;color:var(--sub)}
+.way b{color:var(--txt)}
+
+/* 단계 */
+.step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:14px}
+.step > h2{font-size:17px;margin-bottom:6px;display:flex;align-items:baseline;gap:10px}
+.step > h2 .n{background:var(--accent);color:#fff;font-size:13px;font-weight:700;
+  min-width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.step .why{font-size:13px;color:var(--sub);margin:0 0 12px 36px}
+.step .body{margin-left:36px}
+.step p{font-size:14px;margin-bottom:9px}
+.step ul,.step ol{margin:8px 0 10px 20px;font-size:14px}
+.step li{margin-bottom:7px}
+.tip{font-size:13.5px;background:#14283f;border-left:3px solid var(--accent2);
+  padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0}
+.warnline{font-size:13.5px;background:#332a14;border-left:3px solid var(--warn);
+  padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:#ffd9a0}
+
+h2.sec{font-size:18px;margin:32px 0 12px}
+
+/* 체크리스트 */
+#todo{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+#todo label{display:flex;gap:11px;align-items:flex-start;font-size:14.5px;
+  padding:9px 0;border-top:1px solid var(--line);cursor:pointer}
+#todo label:first-of-type{border-top:none}
+#todo input{margin-top:4px;width:17px;height:17px;accent-color:var(--good);flex:none;cursor:pointer}
+#todo input:checked + span{color:var(--sub);text-decoration:line-through}
+#prog{font-size:13px;color:var(--sub);margin-top:14px;display:flex;align-items:center;gap:10px}
+#prog .bar{flex:1;height:6px;background:var(--panel2);border-radius:4px;overflow:hidden}
+#prog .bar i{display:block;height:100%;background:var(--good);width:0;transition:width .2s}
+#reset{background:transparent;border:1px solid var(--line);color:var(--sub);padding:6px 12px;font-size:12px}
+
+footer{max-width:820px;margin:0 auto;padding:0 20px 60px;color:var(--sub);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🛒 쇼핑 <span>쇼츠</span> 만들기</h1>
+  <div class="spacer"></div>
+  <a class="iconbtn" href="./index.html">← 트렌드 분석으로</a>
+</header>
+
+<main>
+
+<p class="lead">
+  얼굴 안 나오고, 촬영 안 하고, 짧은 영상으로 물건을 팔아 수수료를 받는 방식이에요.<br>
+  아래 순서대로만 하면 돼요. <b>1단계부터 차례로</b> 하시면 됩니다.
+</p>
+
+<div class="danger">
+  <h2>⚠️ 시작하기 전에 — 보내주신 영상은 강의 판매용이에요</h2>
+  <p>
+    보내주신 영상(<b>돈터치</b> 채널)은 노하우 영상이 아니라 <b>무료특강 신청을 받는 광고</b>예요.
+    설명란이 "댓글 달기 → 링크 클릭 → 단톡방 입장 → 무료강의"로 되어 있고,
+    맨 아래에 "성과는 개인마다 차이가 있을 수 있습니다"라는 문구가 붙어 있어요.
+    유튜브가 이 영상 옆에 추천하는 영상이 <b>KBS 추적60분 "2026 부업 사기 보고서"</b>입니다.
+  </p>
+  <p>그리고 이 영상이 가르친다는 방법 자체에 <b>큰 함정이 두 개</b> 있어요.</p>
+  <ul>
+    <li><b>"연예인 영상을 찾아서 쓴다"</b> → 방송사·소속사 영상이라 저작권 침해예요.
+      유튜브가 자동으로 잡아내서(Content ID) <b>수익을 원저작권자에게 넘겨버립니다.</b>
+      배경음악 한 곡만 걸려도 내 몫이 절반으로 깎여요.</li>
+    <li><b>연예인 얼굴로 물건을 홍보</b> → 초상권·퍼블리시티권 침해로 <b>손해배상 청구 대상</b>이에요.
+      광고 목적이라 "잠깐 썼다"는 변명이 통하지 않습니다.</li>
+  </ul>
+  <p style="margin-top:12px">
+    그래서 아래는 <b>같은 돈벌이 구조를 합법적으로 하는 방법</b>으로 정리했어요.
+    수익 구조는 똑같고, 채널이 날아가지 않습니다.
+  </p>
+  <div class="src">
+    확인 출처 · <a href="https://support.google.com/youtube/answer/13376398?hl=ko" target="_blank">유튜브 쇼핑 제휴 자격요건(고객센터)</a>
+    · <a href="https://www.news1.kr/it-science/general-it/6118301" target="_blank">구독자 500명으로 완화(뉴스1)</a>
+  </div>
+</div>
+
+<h2 class="sec">💰 돈이 들어오는 길은 두 개예요</h2>
+<div class="two">
+  <div class="way">
+    <h3>① 쿠팡 파트너스</h3>
+    <div class="tagline">✅ 오늘 바로 시작 가능 · 조건 없음</div>
+    <p>쿠팡 상품 링크를 만들어 영상 설명·댓글에 넣고, 그 링크로 누가 사면 <b>수수료 약 3%</b>를 받아요.
+    구독자 수 조건이 <b>아예 없어서</b> 채널을 오늘 만들어도 됩니다.</p>
+  </div>
+  <div class="way">
+    <h3>② 유튜브 쇼핑 제휴</h3>
+    <div class="tagline">⏳ 구독자 500명부터</div>
+    <p>영상 화면에 <b>상품 태그가 직접 붙어요.</b> 시청자가 유튜브를 안 나가고 바로 삽니다.
+    그래서 훨씬 잘 팔려요. 2026년 3월부터 조건이 구독자 1만 → <b>500명</b>으로 낮아졌습니다.</p>
+  </div>
+</div>
+<div class="tip">💡 <b>①로 시작해서 ②로 넘어가는 게 정석이에요.</b> ①은 조건이 없으니 오늘 시작하고, 구독자 500명이 모이면 ②를 신청해서 수익을 몇 배로 올리는 순서입니다.</div>
+
+<h2 class="sec">📋 순서대로 하기</h2>
+
+<div class="step">
+  <h2><span class="n">1</span>팔 물건 정하기</h2>
+  <div class="why">아이템을 잘못 고르면 조회수가 나와도 돈이 안 돼요. 여기가 제일 중요합니다.</div>
+  <div class="body">
+    <p>이 세 조건을 <b>전부</b> 만족하는 것만 고르세요.</p>
+    <ul>
+      <li><b>1~5만원대</b> — 너무 싸면 수수료가 몇백 원, 너무 비싸면 충동구매가 안 돼요.</li>
+      <li><b>보면 바로 이해되는 것</b> — 설명이 필요하면 15초 안에 못 팝니다. 주방용품·청소용품·수납·차량용품이 잘 팔리는 이유예요.</li>
+      <li><b>"오, 저런 게 있네" 소리가 나오는 것</b> — 이미 아는 물건은 안 눌러요.</li>
+    </ul>
+    <div class="tip">💡 쿠팡 앱에서 <b>"골드박스"</b>나 카테고리별 <b>판매량순</b>으로 보세요. 이미 잘 팔리는 게 증명된 물건이라 실패가 적어요.</div>
+  </div>
+</div>
+
+<div class="step">
+  <h2><span class="n">2</span>영상 소재 구하기 — 여기서 대부분 사고가 나요</h2>
+  <div class="why">남의 영상을 가져다 쓰면 수익이 몰수되거나 채널이 정지돼요.</div>
+  <div class="body">
+    <p><b>안전한 방법은 이 세 가지예요.</b></p>
+    <ol>
+      <li><b>직접 찍기</b> — 물건을 사서 책상 위에서 손만 나오게 찍어요. 얼굴 안 나와도 됩니다. 제일 안전하고, 조회수도 제일 잘 나와요.</li>
+      <li><b>판매자가 제공한 소재</b> — 쿠팡 파트너스는 상품 이미지를 쓸 수 있게 해줘요. 여러 장을 이어붙여 영상으로 만듭니다.</li>
+      <li><b>상업적 사용이 허용된 무료 영상</b> — Pexels, Pixabay 같은 곳. 다만 남들도 다 써서 차별화가 어려워요.</li>
+    </ol>
+    <div class="warnline">⚠️ 방송·드라마·연예인·다른 유튜버 영상은 <b>절대 쓰지 마세요.</b> 유튜브가 자동으로 잡습니다. 조회수가 터질수록 더 빨리 걸려요.</div>
+    <div class="tip">💡 음악도 마찬가지예요. <b>유튜브 오디오 보관함</b>의 무료 음원만 쓰세요. 일반 가요를 쓰면 쇼츠 수익의 절반이 음원 저작권자에게 갑니다.</div>
+  </div>
+</div>
+
+<div class="step">
+  <h2><span class="n">3</span>15~30초로 만들기</h2>
+  <div class="why">쇼핑 쇼츠는 길수록 안 팔려요. 끝까지 봐야 링크를 누릅니다.</div>
+  <div class="body">
+    <p>이 순서를 그대로 지키세요. 검증된 구성이에요.</p>
+    <ul>
+      <li><b>0~2초 — 문제 보여주기.</b> "서랍 안 이렇게 되어 있죠?" 어질러진 화면부터. 여기서 안 잡으면 끝이에요.</li>
+      <li><b>3~10초 — 물건이 해결하는 장면.</b> 말보다 화면으로. 정리되는 과정을 빠르게.</li>
+      <li><b>11~20초 — 결과 + 가격.</b> "1만 2천원" 숫자를 화면에 크게.</li>
+      <li><b>마지막 2초 — "링크는 댓글에"</b> 한 줄. 없으면 아무도 안 눌러요.</li>
+    </ul>
+    <div class="tip">💡 <b>자막은 무조건 넣으세요.</b> 쇼츠는 대부분 소리 끄고 봅니다. 자막 없으면 무슨 물건인지도 몰라요.</div>
+  </div>
+</div>
+
+<div class="step">
+  <h2><span class="n">4</span>제목 쓰기</h2>
+  <div class="why">쇼츠는 썸네일보다 첫 화면과 제목이 클릭을 결정해요.</div>
+  <div class="body">
+    <ul>
+      <li><b>가격을 넣으세요.</b> "만원으로 서랍 정리 끝" — 숫자가 있으면 클릭률이 올라가요.</li>
+      <li><b>물건 이름을 앞에 두지 마세요.</b> 아무도 모르는 이름이라 안 눌러요. <b>결과</b>를 앞에 두세요.</li>
+      <li>#쇼츠 #쿠팡추천 같은 해시태그 3~5개.</li>
+    </ul>
+    <div class="tip">💡 <a href="./index.html">트렌드 분석 도구</a>의 <b>✍️ 제목 공식</b>에서 지금 뜨는 제목의 평균 길이·숫자 비율·이모지 비율을 볼 수 있어요. 그대로 맞추면 됩니다.</div>
+  </div>
+</div>
+
+<div class="step">
+  <h2><span class="n">5</span>링크 걸기</h2>
+  <div class="why">이걸 안 하면 조회수가 백만이 나와도 수익은 0원이에요.</div>
+  <div class="body">
+    <ol>
+      <li>쿠팡 파트너스 가입 → 상품 검색 → <b>내 추적 링크</b> 생성</li>
+      <li>영상 <b>설명란 맨 위</b>에 링크</li>
+      <li><b>댓글로도 한 번 더</b> 달고 <b>고정</b>하세요 — 쇼츠는 설명란을 잘 안 봐요. 댓글이 훨씬 많이 눌립니다.</li>
+    </ol>
+    <div class="warnline">⚠️ <b>"쿠팡 파트너스 활동으로 수수료를 받습니다"</b> 문구를 반드시 넣으세요. 법으로 정해진 의무예요(표시광고법). 안 쓰면 과태료 대상입니다.</div>
+  </div>
+</div>
+
+<div class="step">
+  <h2><span class="n">6</span>하루 1개씩, 30일</h2>
+  <div class="why">쇼츠는 한 방을 노리는 게 아니라 <b>타율 게임</b>이에요.</div>
+  <div class="body">
+    <p>10개 올리면 8개는 조회수 500에서 끝나고, 1~2개가 터져요. 그 1~2개가 수익 대부분을 만듭니다.
+    <b>10개도 안 올려보고 "안 되네" 하는 게 제일 흔한 실패예요.</b></p>
+    <div class="tip">💡 터진 영상이 나오면 <b>그 물건으로 다른 각도의 영상을 3~4개 더</b> 만드세요. 새 아이템을 찾는 것보다 이게 훨씬 효율이 좋아요.</div>
+  </div>
+</div>
+
+<div class="step">
+  <h2><span class="n">7</span>구독자 500명 넘으면 갈아타기</h2>
+  <div class="why">여기서 수익이 몇 배로 뜁니다.</div>
+  <div class="body">
+    <p><b>유튜브 쇼핑 제휴</b>를 신청하세요. 화면에 상품 태그가 바로 붙어서, 시청자가 유튜브를 안 나가고 삽니다. 구매율이 크게 올라가요.</p>
+    <p style="color:var(--sub);font-size:13.5px">신청 조건: 구독자 500명 + 최근 12개월 쇼츠 조회수 300만 회(또는 시청시간 3,000시간). 유튜브 파트너 프로그램(YPP) 가입이 먼저예요.</p>
+  </div>
+</div>
+
+<h2 class="sec">✅ 오늘 할 일</h2>
+<div id="todo">
+  <label><input type="checkbox" data-i="0"><span>쿠팡 파트너스 가입 신청하기 (승인까지 1~3일)</span></label>
+  <label><input type="checkbox" data-i="1"><span>유튜브 채널 만들기 (이름은 아이템 분야로 — "자취템", "차박용품" 처럼)</span></label>
+  <label><input type="checkbox" data-i="2"><span>쿠팡 골드박스에서 1~5만원대 아이템 <b>5개</b> 골라 메모하기</span></label>
+  <label><input type="checkbox" data-i="3"><span>그중 1개 주문하기 (직접 찍는 게 제일 안전하고 잘 팔려요)</span></label>
+  <label><input type="checkbox" data-i="4"><span>유튜브 오디오 보관함에서 쓸 무료 음악 2~3개 저장</span></label>
+  <label><input type="checkbox" data-i="5"><span>첫 영상 만들어 올리기 (15~30초 · 자막 필수 · 댓글에 링크 고정)</span></label>
+  <label><input type="checkbox" data-i="6"><span>수수료 고지 문구 넣었는지 확인</span></label>
+  <div id="prog"><span id="pn">0 / 7</span><span class="bar"><i id="pb"></i></span><button id="reset">초기화</button></div>
+</div>
+
+</main>
+
+<footer>
+  제도 정보는 2026년 8월 기준이에요. 유튜브 정책은 바뀌니 신청 전에
+  <a href="https://support.google.com/youtube/answer/13376398?hl=ko" target="_blank">유튜브 고객센터</a>에서 한 번 더 확인하세요.<br>
+  수익 금액은 아이템·조회수에 따라 크게 달라집니다. 이 문서는 특정 수익을 보장하지 않아요.
+</footer>
+
+<script>
+// 체크 상태는 브라우저에 저장 — 며칠에 걸쳐 진행해도 이어짐
+var KEY='ss_todo', boxes=document.querySelectorAll('#todo input');
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+function draw(){
+  var n=[].filter.call(boxes,function(b){return b.checked;}).length;
+  document.getElementById('pn').textContent=n+' / '+boxes.length;
+  document.getElementById('pb').style.width=(n/boxes.length*100)+'%';
+}
+var saved=load();
+[].forEach.call(boxes,function(b){
+  b.checked=saved.indexOf(+b.dataset.i)>=0;
+  b.onchange=function(){
+    localStorage.setItem(KEY, JSON.stringify(
+      [].filter.call(boxes,function(x){return x.checked;}).map(function(x){return +x.dataset.i;})));
+    draw();
+  };
+});
+document.getElementById('reset').onclick=function(){
+  localStorage.removeItem(KEY);
+  [].forEach.call(boxes,function(b){ b.checked=false; });
+  draw();
+};
+draw();
+</script>
+</body>
+</html>
