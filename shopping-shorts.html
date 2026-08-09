@@ -11,10 +11,11 @@
   --good:#3ddc84; --warn:#ffb74d; --chip:#252b3b;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--txt);font-family:'Segoe UI','Malgun Gothic',sans-serif;line-height:1.6}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI','Malgun Gothic',sans-serif;line-height:1.65;
+  word-break:keep-all;overflow-wrap:anywhere}
 a{color:var(--accent2)}
 button{font-family:inherit;cursor:pointer;border:none;border-radius:8px}
-header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 header h1{font-size:20px;font-weight:700}
 header h1 span{color:var(--accent)}
 .spacer{flex:1}
@@ -22,45 +23,84 @@ header h1 span{color:var(--accent)}
 .iconbtn:hover{background:#303850}
 main{max-width:820px;margin:0 auto;padding:24px 20px 80px}
 
-.lead{color:var(--sub);font-size:14.5px;margin-bottom:22px}
+.lead{color:var(--sub);font-size:14.5px;margin:0 0 30px}
 
-/* 경고 */
-.danger{background:#2a1519;border:1px solid #6b2733;border-radius:14px;padding:18px 20px;margin-bottom:24px}
-.danger h2{font-size:16.5px;color:#ff8fa3;margin-bottom:10px}
-.danger p{font-size:14px;margin-bottom:10px}
-.danger ul{margin:10px 0 4px 20px;font-size:14px}
-.danger li{margin-bottom:7px}
-.danger .src{font-size:12px;color:var(--sub);margin-top:12px}
+/* ===== 📊 오늘 뭘 만들까 ===== */
+#today{border:1px solid #2f4a63;background:linear-gradient(180deg,#16202c,#151a24);
+  border-radius:14px;padding:20px 20px 18px;margin-bottom:14px}
+#today h2{font-size:18px;margin-bottom:4px}
+#today .when{font-size:12px;color:var(--sub);margin-bottom:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 15px;min-width:0}
+.card .k{font-size:11.5px;color:var(--sub);letter-spacing:.3px;margin-bottom:6px}
+.card .v{font-size:20px;font-weight:700;line-height:1.3;margin-bottom:5px}
+.card .v small{font-size:13px;font-weight:400;color:var(--sub)}
+.card .d{font-size:13px;color:var(--sub)}
+.card .d b{color:var(--txt)}
+.card.wide{grid-column:1/-1}
+.kws{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.kws span{background:var(--chip);border-radius:6px;padding:4px 9px;font-size:13px}
+.kws span i{font-style:normal;color:var(--sub);font-size:11px;margin-left:4px}
+#todayfail{font-size:14px;color:var(--sub);margin-bottom:14px}
 
-/* 구조 설명 */
-.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:10px}
-.way{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
-.way h3{font-size:15px;margin-bottom:8px}
-.way .tagline{font-size:12.5px;color:var(--good);margin-bottom:10px}
-.way p{font-size:13.5px;color:var(--sub)}
+/* ===== 🤖 프롬프트 ===== */
+#gen{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:34px}
+#gen h2{font-size:18px;margin-bottom:4px}
+#gen .why{font-size:13.5px;color:var(--sub);margin-bottom:14px}
+.form{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+.form label{font-size:12.5px;color:var(--sub);display:block;margin-bottom:5px}
+.form input,.form select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:10px 12px;font-size:14.5px;font-family:inherit}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.btn{background:var(--accent);color:#fff;padding:11px 18px;font-size:14px;font-weight:600}
+.btn.ghost{background:var(--chip);color:var(--txt);font-weight:400}
+#out{width:100%;min-height:230px;background:#0c0f16;border:1px solid var(--line);color:var(--txt);
+  border-radius:10px;padding:13px;font-size:13px;line-height:1.6;font-family:'Consolas','Malgun Gothic',monospace;
+  resize:vertical;white-space:pre-wrap}
+#gen .hint{font-size:12.5px;color:var(--sub);margin-top:10px}
+
+/* 수익 구조 */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-bottom:12px}
+.way{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:0}
+.way h3{font-size:15px;margin-bottom:6px}
+.way .tagline{font-size:12.5px;color:var(--good);margin-bottom:9px}
+.way p{font-size:13.5px;color:var(--sub);margin-bottom:7px}
 .way b{color:var(--txt)}
 
 /* 단계 */
-.step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:14px}
-.step > h2{font-size:17px;margin-bottom:6px;display:flex;align-items:baseline;gap:10px}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:22px}
+.step > h2{font-size:17px;margin-bottom:10px;display:flex;align-items:baseline;gap:10px}
 .step > h2 .n{background:var(--accent);color:#fff;font-size:13px;font-weight:700;
   min-width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
-.step .why{font-size:13px;color:var(--sub);margin:0 0 12px 36px}
-.step .body{margin-left:36px}
-.step p{font-size:14px;margin-bottom:9px}
-.step ul,.step ol{margin:8px 0 10px 20px;font-size:14px}
-.step li{margin-bottom:7px}
+.step .sum{font-size:15px;font-weight:700;color:var(--good);margin:0 0 14px}
+.step .body p{font-size:14px;margin-bottom:12px;color:var(--sub)}
+.step .body p b{color:var(--txt)}
+.step ul,.step ol{margin:0 0 14px 19px;font-size:14px;color:var(--sub)}
+.step li{margin-bottom:9px}
+.step li b{color:var(--txt)}
+.step h4{font-size:14px;margin:18px 0 9px}
 .tip{font-size:13.5px;background:#14283f;border-left:3px solid var(--accent2);
-  padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0}
+  padding:11px 14px;border-radius:0 8px 8px 0;margin:14px 0}
 .warnline{font-size:13.5px;background:#332a14;border-left:3px solid var(--warn);
-  padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:#ffd9a0}
+  padding:11px 14px;border-radius:0 8px 8px 0;margin:14px 0;color:#ffd9a0}
+.warnline .src{font-size:12px;color:var(--sub);margin-top:7px}
+.key{font-size:14.5px;background:#1a2b22;border-left:3px solid var(--good);
+  padding:12px 14px;border-radius:0 8px 8px 0;margin:14px 0}
 
-h2.sec{font-size:18px;margin:32px 0 12px}
+/* 표 */
+.tw{overflow-x:auto;margin:0 0 14px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:0}
+th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
+th{color:var(--sub);font-weight:600;font-size:12.5px;white-space:nowrap}
+td b{color:var(--txt)}
+td{color:var(--sub)}
+
+h2.sec{font-size:18px;margin:38px 0 14px}
 
 /* 체크리스트 */
-#todo{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+#todo{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
 #todo label{display:flex;gap:11px;align-items:flex-start;font-size:14.5px;
-  padding:9px 0;border-top:1px solid var(--line);cursor:pointer}
+  padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
 #todo label:first-of-type{border-top:none}
 #todo input{margin-top:4px;width:17px;height:17px;accent-color:var(--good);flex:none;cursor:pointer}
 #todo input:checked + span{color:var(--sub);text-decoration:line-through}
@@ -70,6 +110,14 @@ h2.sec{font-size:18px;margin:32px 0 12px}
 #reset{background:transparent;border:1px solid var(--line);color:var(--sub);padding:6px 12px;font-size:12px}
 
 footer{max-width:820px;margin:0 auto;padding:0 20px 60px;color:var(--sub);font-size:12.5px}
+
+@media(max-width:420px){
+  main{padding:18px 14px 60px}
+  header{padding:14px}
+  .step{padding:17px 15px}
+  #today,#gen,#todo{padding:16px 14px}
+  .card .v{font-size:18px}
+}
 </style>
 </head>
 <body>
@@ -82,142 +130,198 @@ footer{max-width:820px;margin:0 auto;padding:0 20px 60px;color:var(--sub);font-s
 
 <main>
 
+<!-- 📊 오늘 뭘 만들까 -->
+<section id="today" hidden>
+  <h2>📊 오늘 뭘 만들까</h2>
+  <div class="when" id="t-when"></div>
+  <div class="cards">
+    <div class="card">
+      <div class="k">쇼츠 vs 롱폼</div>
+      <div class="v" id="t-fmt"></div>
+      <div class="d" id="t-fmtd"></div>
+    </div>
+    <div class="card">
+      <div class="k">올리기 좋은 시간대</div>
+      <div class="v" id="t-hour"></div>
+      <div class="d" id="t-hourd"></div>
+    </div>
+    <div class="card">
+      <div class="k">기회 신호</div>
+      <div class="v" id="t-opp"></div>
+      <div class="d" id="t-oppd"></div>
+    </div>
+    <div class="card wide">
+      <div class="k">제목 공식</div>
+      <div class="v" id="t-title"></div>
+      <div class="d" id="t-titled"></div>
+    </div>
+    <div class="card wide">
+      <div class="k">지금 뜨는 단어</div>
+      <div class="kws" id="t-kw"></div>
+      <div class="d" style="margin-top:8px">제목이나 첫 자막에 자연스럽게 섞으면 노출이 붙어요.</div>
+    </div>
+  </div>
+</section>
+<p id="todayfail" hidden>오늘의 수치는 <a href="./index.html">트렌드 분석 페이지</a>에서 확인하세요.</p>
+
+<!-- 🤖 프롬프트 -->
+<section id="gen">
+  <h2>🤖 AI에게 시킬 프롬프트</h2>
+  <div class="why">상품만 적으면 <b>오늘 수치가 박힌 프롬프트</b>를 만들어 드려요. 복사해서 무료 Gemini나 Claude에 붙여넣으면 대본·제목·자막·해시태그가 한 번에 나옵니다.</div>
+  <div class="form">
+    <div>
+      <label for="g-item">내가 팔 상품</label>
+      <input id="g-item" type="text" placeholder="예) 자석 붙는 무선 핸디 청소기 1만 9천원" autocomplete="off">
+    </div>
+    <div>
+      <label for="g-fmt">형식</label>
+      <select id="g-fmt">
+        <option value="shorts">쇼츠 (15~30초)</option>
+        <option value="long">롱폼 (3~8분)</option>
+      </select>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn" id="g-make">프롬프트 만들기</button>
+    <button class="btn ghost" id="g-copy">복사</button>
+  </div>
+  <textarea id="out" readonly placeholder="상품을 적고 [프롬프트 만들기]를 누르세요."></textarea>
+  <div class="hint">이걸 <b>Gemini 젬</b>이나 <b>Claude 프로젝트</b>에 저장해두면 매번 붙여넣지 않아도 됩니다. 상품 이름만 바꿔서 계속 쓰세요.</div>
+</section>
+
 <p class="lead">
   얼굴 안 나오고, 촬영 안 하고, 짧은 영상으로 물건을 팔아 수수료를 받는 방식이에요.<br>
-  아래 순서대로만 하면 돼요. <b>1단계부터 차례로</b> 하시면 됩니다.
+  아래는 <b>1단계부터 차례로</b> 따라가면 되는 순서입니다.
 </p>
 
-<div class="danger">
-  <h2>⚠️ 시작하기 전에 — 보내주신 영상은 강의 판매용이에요</h2>
-  <p>
-    보내주신 영상(<b>돈터치</b> 채널)은 노하우 영상이 아니라 <b>무료특강 신청을 받는 광고</b>예요.
-    설명란이 "댓글 달기 → 링크 클릭 → 단톡방 입장 → 무료강의"로 되어 있고,
-    맨 아래에 "성과는 개인마다 차이가 있을 수 있습니다"라는 문구가 붙어 있어요.
-    유튜브가 이 영상 옆에 추천하는 영상이 <b>KBS 추적60분 "2026 부업 사기 보고서"</b>입니다.
-  </p>
-  <p>그리고 이 영상이 가르친다는 방법 자체에 <b>큰 함정이 두 개</b> 있어요.</p>
-  <ul>
-    <li><b>"연예인 영상을 찾아서 쓴다"</b> → 방송사·소속사 영상이라 저작권 침해예요.
-      유튜브가 자동으로 잡아내서(Content ID) <b>수익을 원저작권자에게 넘겨버립니다.</b>
-      배경음악 한 곡만 걸려도 내 몫이 절반으로 깎여요.</li>
-    <li><b>연예인 얼굴로 물건을 홍보</b> → 초상권·퍼블리시티권 침해로 <b>손해배상 청구 대상</b>이에요.
-      광고 목적이라 "잠깐 썼다"는 변명이 통하지 않습니다.</li>
-  </ul>
-  <p style="margin-top:12px">
-    그래서 아래는 <b>같은 돈벌이 구조를 합법적으로 하는 방법</b>으로 정리했어요.
-    수익 구조는 똑같고, 채널이 날아가지 않습니다.
-  </p>
-  <div class="src">
-    확인 출처 · <a href="https://support.google.com/youtube/answer/13376398?hl=ko" target="_blank">유튜브 쇼핑 제휴 자격요건(고객센터)</a>
-    · <a href="https://www.news1.kr/it-science/general-it/6118301" target="_blank">구독자 500명으로 완화(뉴스1)</a>
-  </div>
-</div>
-
-<h2 class="sec">💰 돈이 들어오는 길은 두 개예요</h2>
+<h2 class="sec">💰 돈이 들어오는 길은 두 개</h2>
 <div class="two">
   <div class="way">
     <h3>① 쿠팡 파트너스</h3>
-    <div class="tagline">✅ 오늘 바로 시작 가능 · 조건 없음</div>
-    <p>쿠팡 상품 링크를 만들어 영상 설명·댓글에 넣고, 그 링크로 누가 사면 <b>수수료 약 3%</b>를 받아요.
-    구독자 수 조건이 <b>아예 없어서</b> 채널을 오늘 만들어도 됩니다.</p>
+    <div class="tagline">✅ 오늘 바로 시작 · 조건 없음</div>
+    <p>링크로 누가 사면 <b>수수료 약 3%</b>.</p>
+    <p>구독자 조건이 <b>아예 없어서</b> 채널을 오늘 만들어도 돼요.</p>
   </div>
   <div class="way">
     <h3>② 유튜브 쇼핑 제휴</h3>
     <div class="tagline">⏳ 구독자 500명부터</div>
-    <p>영상 화면에 <b>상품 태그가 직접 붙어요.</b> 시청자가 유튜브를 안 나가고 바로 삽니다.
-    그래서 훨씬 잘 팔려요. 2026년 3월부터 조건이 구독자 1만 → <b>500명</b>으로 낮아졌습니다.</p>
+    <p>영상에 <b>상품 태그가 직접</b> 붙어 유튜브 안에서 바로 삽니다.</p>
+    <p>2026년 3월부터 구독자 1만 → <b>500명</b>으로 완화.
+      <a href="https://www.news1.kr/it-science/general-it/6118301" target="_blank">뉴스</a></p>
   </div>
 </div>
-<div class="tip">💡 <b>①로 시작해서 ②로 넘어가는 게 정석이에요.</b> ①은 조건이 없으니 오늘 시작하고, 구독자 500명이 모이면 ②를 신청해서 수익을 몇 배로 올리는 순서입니다.</div>
+<div class="tip">💡 <b>①로 시작해 ②로 넘어가는 게 정석.</b> 조건 없는 ①을 오늘 켜두고, 500명이 모이면 ②로 수익을 올립니다.</div>
 
 <h2 class="sec">📋 순서대로 하기</h2>
 
 <div class="step">
   <h2><span class="n">1</span>팔 물건 정하기</h2>
-  <div class="why">아이템을 잘못 고르면 조회수가 나와도 돈이 안 돼요. 여기가 제일 중요합니다.</div>
+  <p class="sum">1~5만원대 · 보면 바로 이해되는 · "저런 게 있네" 소리 나오는 것.</p>
   <div class="body">
-    <p>이 세 조건을 <b>전부</b> 만족하는 것만 고르세요.</p>
-    <ul>
-      <li><b>1~5만원대</b> — 너무 싸면 수수료가 몇백 원, 너무 비싸면 충동구매가 안 돼요.</li>
-      <li><b>보면 바로 이해되는 것</b> — 설명이 필요하면 15초 안에 못 팝니다. 주방용품·청소용품·수납·차량용품이 잘 팔리는 이유예요.</li>
-      <li><b>"오, 저런 게 있네" 소리가 나오는 것</b> — 이미 아는 물건은 안 눌러요.</li>
-    </ul>
-    <div class="tip">💡 쿠팡 앱에서 <b>"골드박스"</b>나 카테고리별 <b>판매량순</b>으로 보세요. 이미 잘 팔리는 게 증명된 물건이라 실패가 적어요.</div>
+    <p>아이템을 잘못 고르면 조회수가 나와도 돈이 안 돼요. <b>여기가 제일 중요합니다.</b></p>
+    <div class="tw">
+      <table>
+        <tr><th>조건</th><th>이유</th></tr>
+        <tr><td><b>1~5만원대</b></td><td>더 싸면 수수료가 몇백 원, 더 비싸면 충동구매가 안 나와요</td></tr>
+        <tr><td><b>설명 없이 이해</b></td><td>15초 안에 설명이 필요하면 못 팔아요 (주방·청소·수납·차량용품이 강한 이유)</td></tr>
+        <tr><td><b>처음 보는 물건</b></td><td>이미 아는 물건은 손가락이 안 멈춰요</td></tr>
+      </table>
+    </div>
+
+    <h4>🔍 네이버 데이터랩으로 "팔릴 물건" 찾기</h4>
+    <p>무료이고 <b>로그인도 필요 없어요.</b> 쿠팡 판매량순이 "많이 팔린 것"이라면, 데이터랩은 <b>지금 사려고 검색 중인 것</b>을 보여줍니다.</p>
+    <ol>
+      <li><a href="https://datalab.naver.com/shoppingInsight/sCategory.naver" target="_blank">쇼핑인사이트 → 분야별 인기검색어</a>에서 카테고리(생활/건강, 디지털 등)를 고르면 <b>실제 검색되는 상품 키워드가 순위로</b> 나와요.</li>
+      <li>거기서 후보를 <b>2~5개</b> 추립니다.</li>
+      <li><a href="https://datalab.naver.com/keyword/trendSearch.naver" target="_blank">검색어트렌드</a>에 후보를 나란히 넣어 <b>지금 올라가는 쪽</b>을 고르세요. 꺾인 키워드는 버립니다.</li>
+      <li>같은 화면의 <b>기기별·성별·연령별 비중</b>을 보고 누구를 향해 만들지 정하세요. 40대 여성 모바일이면 자막을 크게, 20대면 속도를 빠르게.</li>
+    </ol>
+    <div class="key">🎯 유튜브 트렌드 = 사람들이 <b>"보는"</b> 것 / 네이버 데이터랩 = 사람들이 <b>"사려고 검색하는"</b> 것.<br>이 둘이 겹치는 지점이 쇼핑 쇼츠로 팔립니다.</div>
+    <div class="tip">💡 쿠팡 <b>골드박스</b>·카테고리 <b>판매량순</b>으로 교차 확인하면 실패가 줄어요. 검색은 되는데 파는 사람이 적은 게 제일 좋습니다.</div>
   </div>
 </div>
 
 <div class="step">
-  <h2><span class="n">2</span>영상 소재 구하기 — 여기서 대부분 사고가 나요</h2>
-  <div class="why">남의 영상을 가져다 쓰면 수익이 몰수되거나 채널이 정지돼요.</div>
+  <h2><span class="n">2</span>영상 소재 구하기</h2>
+  <p class="sum">직접 찍은 것 · 판매자 제공 소재 · 무료 스톡. 이 셋 밖으로 나가지 마세요.</p>
   <div class="body">
-    <p><b>안전한 방법은 이 세 가지예요.</b></p>
-    <ol>
-      <li><b>직접 찍기</b> — 물건을 사서 책상 위에서 손만 나오게 찍어요. 얼굴 안 나와도 됩니다. 제일 안전하고, 조회수도 제일 잘 나와요.</li>
-      <li><b>판매자가 제공한 소재</b> — 쿠팡 파트너스는 상품 이미지를 쓸 수 있게 해줘요. 여러 장을 이어붙여 영상으로 만듭니다.</li>
-      <li><b>상업적 사용이 허용된 무료 영상</b> — Pexels, Pixabay 같은 곳. 다만 남들도 다 써서 차별화가 어려워요.</li>
-    </ol>
-    <div class="warnline">⚠️ 방송·드라마·연예인·다른 유튜버 영상은 <b>절대 쓰지 마세요.</b> 유튜브가 자동으로 잡습니다. 조회수가 터질수록 더 빨리 걸려요.</div>
-    <div class="tip">💡 음악도 마찬가지예요. <b>유튜브 오디오 보관함</b>의 무료 음원만 쓰세요. 일반 가요를 쓰면 쇼츠 수익의 절반이 음원 저작권자에게 갑니다.</div>
+    <div class="tw">
+      <table>
+        <tr><th>방법</th><th>메모</th></tr>
+        <tr><td><b>직접 찍기</b></td><td>책상 위에서 손만. 얼굴 안 나와도 되고 조회수도 제일 잘 나와요</td></tr>
+        <tr><td><b>판매자 제공 이미지</b></td><td>쿠팡 파트너스 상품 이미지를 이어붙여 영상으로</td></tr>
+        <tr><td><b>무료 스톡</b></td><td>Pexels·Pixabay. 남들도 써서 차별화가 약해요</td></tr>
+      </table>
+    </div>
+    <div class="warnline">
+      ⚠️ <b>채널 날리지 않는 실무 팁</b><br>
+      · 방송·드라마·다른 유튜버 영상 → 유튜브가 자동으로 잡아(Content ID) <b>수익이 원저작권자에게 넘어갑니다.</b> 터질수록 빨리 걸려요.<br>
+      · 연예인 얼굴로 상품 홍보 → 퍼블리시티권 침해로 <b>손해배상 대상</b>. 광고 목적이라 "잠깐 썼다"가 안 통합니다.<br>
+      · 음악은 <b>유튜브 오디오 보관함</b>만. 가요를 깔면 쇼츠 수익 절반이 음원 권리자에게 가요.
+      <div class="src">출처 · <a href="https://www.youtube.com/howyoutubeworks/policies/copyright/" target="_blank">유튜브 저작권 정책</a>
+        · <a href="https://support.google.com/youtube/answer/13376398?hl=ko" target="_blank">유튜브 고객센터</a></div>
+    </div>
   </div>
 </div>
 
 <div class="step">
   <h2><span class="n">3</span>15~30초로 만들기</h2>
-  <div class="why">쇼핑 쇼츠는 길수록 안 팔려요. 끝까지 봐야 링크를 누릅니다.</div>
+  <p class="sum">문제 → 해결 → 결과·가격 → 링크 유도. 이 순서를 그대로.</p>
   <div class="body">
-    <p>이 순서를 그대로 지키세요. 검증된 구성이에요.</p>
-    <ul>
-      <li><b>0~2초 — 문제 보여주기.</b> "서랍 안 이렇게 되어 있죠?" 어질러진 화면부터. 여기서 안 잡으면 끝이에요.</li>
-      <li><b>3~10초 — 물건이 해결하는 장면.</b> 말보다 화면으로. 정리되는 과정을 빠르게.</li>
-      <li><b>11~20초 — 결과 + 가격.</b> "1만 2천원" 숫자를 화면에 크게.</li>
-      <li><b>마지막 2초 — "링크는 댓글에"</b> 한 줄. 없으면 아무도 안 눌러요.</li>
-    </ul>
-    <div class="tip">💡 <b>자막은 무조건 넣으세요.</b> 쇼츠는 대부분 소리 끄고 봅니다. 자막 없으면 무슨 물건인지도 몰라요.</div>
+    <div class="tw">
+      <table>
+        <tr><th>구간</th><th>화면에 무엇을</th></tr>
+        <tr><td><b>0~2초</b></td><td>문제. "서랍 안 이렇게 되어 있죠?" — 여기서 못 잡으면 끝</td></tr>
+        <tr><td><b>3~10초</b></td><td>해결 장면. 말보다 화면으로, 빠르게</td></tr>
+        <tr><td><b>11~20초</b></td><td>결과 + 가격. "1만 2천원"을 크게</td></tr>
+        <tr><td><b>마지막 2초</b></td><td>"링크는 댓글에" 한 줄. 없으면 아무도 안 눌러요</td></tr>
+      </table>
+    </div>
+    <div class="tip">💡 <b>자막은 무조건.</b> 쇼츠는 대부분 소리를 끄고 봅니다. 위 <b>🤖 프롬프트</b>로 대본을 초 단위까지 뽑아서 쓰세요.</div>
   </div>
 </div>
 
 <div class="step">
   <h2><span class="n">4</span>제목 쓰기</h2>
-  <div class="why">쇼츠는 썸네일보다 첫 화면과 제목이 클릭을 결정해요.</div>
+  <p class="sum">물건 이름 말고 <b>결과</b>를 앞에, 숫자를 넣으세요.</p>
   <div class="body">
     <ul>
-      <li><b>가격을 넣으세요.</b> "만원으로 서랍 정리 끝" — 숫자가 있으면 클릭률이 올라가요.</li>
-      <li><b>물건 이름을 앞에 두지 마세요.</b> 아무도 모르는 이름이라 안 눌러요. <b>결과</b>를 앞에 두세요.</li>
-      <li>#쇼츠 #쿠팡추천 같은 해시태그 3~5개.</li>
+      <li><b>가격·숫자를 넣기</b> — "만원으로 서랍 정리 끝". 클릭률이 올라가요.</li>
+      <li><b>상품명을 앞에 두지 않기</b> — 아무도 모르는 이름이라 안 눌러요.</li>
+      <li><b>해시태그 3~5개</b> — #쇼츠 #쿠팡추천 처럼.</li>
     </ul>
-    <div class="tip">💡 <a href="./index.html">트렌드 분석 도구</a>의 <b>✍️ 제목 공식</b>에서 지금 뜨는 제목의 평균 길이·숫자 비율·이모지 비율을 볼 수 있어요. 그대로 맞추면 됩니다.</div>
+    <div class="tip">💡 맨 위 <b>📊 오늘 뭘 만들까</b>의 제목 공식에 길이·숫자 비율을 그대로 맞추면 됩니다.</div>
   </div>
 </div>
 
 <div class="step">
   <h2><span class="n">5</span>링크 걸기</h2>
-  <div class="why">이걸 안 하면 조회수가 백만이 나와도 수익은 0원이에요.</div>
+  <p class="sum">이걸 빼먹으면 조회수 100만이어도 수익 0원.</p>
   <div class="body">
     <ol>
       <li>쿠팡 파트너스 가입 → 상품 검색 → <b>내 추적 링크</b> 생성</li>
       <li>영상 <b>설명란 맨 위</b>에 링크</li>
-      <li><b>댓글로도 한 번 더</b> 달고 <b>고정</b>하세요 — 쇼츠는 설명란을 잘 안 봐요. 댓글이 훨씬 많이 눌립니다.</li>
+      <li><b>댓글로 한 번 더</b> 달고 <b>고정</b> — 쇼츠는 설명란을 잘 안 봐요</li>
     </ol>
-    <div class="warnline">⚠️ <b>"쿠팡 파트너스 활동으로 수수료를 받습니다"</b> 문구를 반드시 넣으세요. 법으로 정해진 의무예요(표시광고법). 안 쓰면 과태료 대상입니다.</div>
+    <div class="warnline">⚠️ <b>"쿠팡 파트너스 활동으로 수수료를 받습니다"</b> 문구는 법으로 정해진 의무예요(표시광고법). 빠지면 과태료 대상입니다.</div>
   </div>
 </div>
 
 <div class="step">
   <h2><span class="n">6</span>하루 1개씩, 30일</h2>
-  <div class="why">쇼츠는 한 방을 노리는 게 아니라 <b>타율 게임</b>이에요.</div>
+  <p class="sum">한 방이 아니라 타율 게임. 10개 중 1~2개가 수익 대부분을 만듭니다.</p>
   <div class="body">
-    <p>10개 올리면 8개는 조회수 500에서 끝나고, 1~2개가 터져요. 그 1~2개가 수익 대부분을 만듭니다.
-    <b>10개도 안 올려보고 "안 되네" 하는 게 제일 흔한 실패예요.</b></p>
-    <div class="tip">💡 터진 영상이 나오면 <b>그 물건으로 다른 각도의 영상을 3~4개 더</b> 만드세요. 새 아이템을 찾는 것보다 이게 훨씬 효율이 좋아요.</div>
+    <p>10개 올리면 8개는 조회수 500에서 끝나요. <b>10개도 안 올려보고 "안 되네" 하는 게 제일 흔한 실패입니다.</b></p>
+    <div class="tip">💡 터진 영상이 나오면 <b>같은 물건으로 각도만 바꿔 3~4개 더.</b> 새 아이템을 찾는 것보다 효율이 훨씬 좋아요.</div>
   </div>
 </div>
 
 <div class="step">
   <h2><span class="n">7</span>구독자 500명 넘으면 갈아타기</h2>
-  <div class="why">여기서 수익이 몇 배로 뜁니다.</div>
+  <p class="sum">유튜브 쇼핑 제휴 신청 — 여기서 수익이 몇 배로 뜁니다.</p>
   <div class="body">
-    <p><b>유튜브 쇼핑 제휴</b>를 신청하세요. 화면에 상품 태그가 바로 붙어서, 시청자가 유튜브를 안 나가고 삽니다. 구매율이 크게 올라가요.</p>
-    <p style="color:var(--sub);font-size:13.5px">신청 조건: 구독자 500명 + 최근 12개월 쇼츠 조회수 300만 회(또는 시청시간 3,000시간). 유튜브 파트너 프로그램(YPP) 가입이 먼저예요.</p>
+    <p>화면에 상품 태그가 붙어 시청자가 <b>유튜브를 안 나가고</b> 삽니다. 구매율이 크게 올라가요.</p>
+    <p style="font-size:13.5px">신청 조건: 구독자 500명 + 최근 12개월 쇼츠 조회수 300만 회(또는 시청시간 3,000시간). 유튜브 파트너 프로그램(YPP) 가입이 먼저예요.</p>
   </div>
 </div>
 
@@ -225,7 +329,7 @@ footer{max-width:820px;margin:0 auto;padding:0 20px 60px;color:var(--sub);font-s
 <div id="todo">
   <label><input type="checkbox" data-i="0"><span>쿠팡 파트너스 가입 신청하기 (승인까지 1~3일)</span></label>
   <label><input type="checkbox" data-i="1"><span>유튜브 채널 만들기 (이름은 아이템 분야로 — "자취템", "차박용품" 처럼)</span></label>
-  <label><input type="checkbox" data-i="2"><span>쿠팡 골드박스에서 1~5만원대 아이템 <b>5개</b> 골라 메모하기</span></label>
+  <label><input type="checkbox" data-i="2"><span>네이버 데이터랩 인기검색어에서 후보 <b>5개</b> 뽑고 검색어트렌드로 비교하기</span></label>
   <label><input type="checkbox" data-i="3"><span>그중 1개 주문하기 (직접 찍는 게 제일 안전하고 잘 팔려요)</span></label>
   <label><input type="checkbox" data-i="4"><span>유튜브 오디오 보관함에서 쓸 무료 음악 2~3개 저장</span></label>
   <label><input type="checkbox" data-i="5"><span>첫 영상 만들어 올리기 (15~30초 · 자막 필수 · 댓글에 링크 고정)</span></label>
@@ -242,29 +346,214 @@ footer{max-width:820px;margin:0 auto;padding:0 20px 60px;color:var(--sub);font-s
 </footer>
 
 <script>
-// 체크 상태는 브라우저에 저장 — 며칠에 걸쳐 진행해도 이어짐
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+
+/* ================= 체크리스트 ================= */
 var KEY='ss_todo', boxes=document.querySelectorAll('#todo input');
-function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
 function draw(){
   var n=[].filter.call(boxes,function(b){return b.checked;}).length;
-  document.getElementById('pn').textContent=n+' / '+boxes.length;
-  document.getElementById('pb').style.width=(n/boxes.length*100)+'%';
+  $('pn').textContent=n+' / '+boxes.length;
+  $('pb').style.width=(n/boxes.length*100)+'%';
 }
-var saved=load();
+var saved=[]; try{ saved=JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){}
 [].forEach.call(boxes,function(b){
   b.checked=saved.indexOf(+b.dataset.i)>=0;
   b.onchange=function(){
-    localStorage.setItem(KEY, JSON.stringify(
-      [].filter.call(boxes,function(x){return x.checked;}).map(function(x){return +x.dataset.i;})));
+    try{ localStorage.setItem(KEY, JSON.stringify(
+      [].filter.call(boxes,function(x){return x.checked;}).map(function(x){return +x.dataset.i;}))); }catch(e){}
     draw();
   };
 });
-document.getElementById('reset').onclick=function(){
-  localStorage.removeItem(KEY);
+$('reset').onclick=function(){
+  try{ localStorage.removeItem(KEY); }catch(e){}
   [].forEach.call(boxes,function(b){ b.checked=false; });
   draw();
 };
 draw();
+
+/* ================= 📊 오늘 뭘 만들까 =================
+   ./data/latest.json 의 한국(KR) 급상승만 써서 "오늘 뭘 만들지"를 계산한다.
+   실패하면(파일 없음·file:// 로 열기) 블록을 통째로 숨기고 링크 한 줄만 남긴다 — 빈 껍데기·에러 노출 금지. */
+var TODAY = null; // 프롬프트 생성기가 그대로 가져다 쓴다
+
+// 최소 불용어 — 조사·관사 수준만. 과하게 막으면 진짜 트렌드 단어가 사라진다
+var STOP = ('the,a,an,and,or,of,to,in,on,for,with,is,are,was,be,this,that,it,at,by,from,as,'+
+  'you,your,my,we,it,its,vs,ft,feat,official,video,mv,live,new,full,shorts,short,ep,part,youtube,'+
+  '그리고,하지만,있는,하는,있다,합니다,입니다,이거,저거,근데,너무,정말,진짜,완전').split(',');
+
+function words(title){
+  var t=title.toLowerCase();
+  return (t.match(/[a-z0-9]{2,}/g)||[]).concat(t.match(/[가-힣]{2,}/g)||[]);
+}
+function topWords(vids,n){
+  var c={};
+  vids.forEach(function(v){
+    var seen={};
+    words(v.title||'').forEach(function(w){
+      if(STOP.indexOf(w)>=0 || /^\d+$/.test(w) || seen[w]) return;
+      seen[w]=1; c[w]=(c[w]||0)+1;
+    });
+  });
+  return Object.keys(c).map(function(w){ return [w,c[w]]; })
+    .filter(function(x){ return x[1]>=2; })
+    .sort(function(a,b){ return b[1]-a[1]; }).slice(0,n);
+}
+function pct(a,b){ return b ? Math.round(a/b*100) : 0; }
+
+function compute(vids){
+  var n=vids.length;
+  var shorts=vids.filter(function(v){ return v.dur>0 && v.dur<=180; }).length;
+
+  var lens=0, num=0, emo=0, q=0;
+  // 서로게이트 페어까지 직접 매칭 — /u 플래그 없이도 구형 브라우저에서 그대로 동작
+  var EMO=/[←-⇿☀-➿⬀-⯿️™ℹ〰〽]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|\uD83E[\uDC00-\uDFFF]/;
+  vids.forEach(function(v){
+    var t=v.title||'';
+    lens += t.replace(/\s+/g,' ').trim().length;
+    if(/\d/.test(t)) num++;
+    if(EMO.test(t)) emo++;
+    if(t.indexOf('?')>=0) q++;
+  });
+
+  // 업로드 시각 — KST 3시간 버킷
+  var bk=[0,0,0,0,0,0,0,0];
+  vids.forEach(function(v){
+    var d=new Date(v.pub);
+    if(isNaN(d)) return;
+    bk[Math.floor(((d.getUTCHours()+9)%24)/3)]++;
+  });
+  var hours=bk.map(function(c,i){ return [i,c]; })
+    .sort(function(a,b){ return b[1]-a[1]; }).filter(function(x){ return x[1]>0; }).slice(0,2)
+    .map(function(x){ return {label:(x[0]*3)+'시~'+(x[0]*3+3)+'시', c:x[1]}; });
+
+  // 소형 채널 돌파 — 구독자 10만 미만인데 구독자의 3배 이상 조회
+  var opp=vids.filter(function(v){ return v.subs>0 && v.subs<100000 && v.views>=v.subs*3; }).length;
+
+  return {
+    n:n,
+    shortsPct:pct(shorts,n),
+    titleLen:Math.round(lens/n),
+    numPct:pct(num,n), emoPct:pct(emo,n), qPct:pct(q,n),
+    hours:hours, opp:opp,
+    kw:topWords(vids,8)
+  };
+}
+
+function renderToday(s,t){
+  $('t-when').textContent='한국 급상승 '+s.n+'개 기준 · '+
+    new Date(t).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 수집';
+
+  $('t-fmt').textContent='쇼츠 '+s.shortsPct+'%';
+  $('t-fmtd').innerHTML = s.shortsPct>=60
+    ? '지금 한국은 쇼츠판이에요 — <b>쇼츠로 만드세요.</b>'
+    : (s.shortsPct>=40 ? '쇼츠·롱폼이 반반 — <b>쇼츠로 시작해도 손해 없어요.</b>'
+                       : '지금은 롱폼이 강해요 — <b>쇼츠는 양으로 밀어야 합니다.</b>');
+
+  if(s.hours.length){
+    $('t-hour').innerHTML = s.hours.map(function(h){ return h.label; }).join(' · ')+' <small>KST</small>';
+    $('t-hourd').innerHTML='지금 뜬 영상이 <b>이 시간대</b>에 가장 많이 올라왔어요.';
+  }else{
+    $('t-hour').textContent='—'; $('t-hourd').textContent='시각 정보가 없어요.';
+  }
+
+  $('t-opp').textContent=s.opp+'개';
+  $('t-oppd').innerHTML = s.opp>=6
+    ? '구독자 10만 미만이 크게 뚫었어요 — <b>지금은 신규 채널에 유리.</b>'
+    : (s.opp>=3 ? '소형 채널 돌파가 <b>보통 수준</b>이에요.'
+                : '대형 채널이 자리를 잡았어요 — <b>오늘은 신규에 불리, 양으로 버티세요.</b>');
+
+  $('t-title').textContent=s.titleLen+'자 안팎';
+  $('t-titled').innerHTML='<b>숫자를 넣으세요</b> — 지금 뜨는 것의 '+s.numPct+'%가 숫자 포함. '+
+    (s.emoPct>=30?'<b>이모지도 하나</b>('+s.emoPct+'%)':'이모지는 '+s.emoPct+'%라 없어도 돼요')+' · '+
+    (s.qPct>=20?'<b>물음표 제목도 통해요</b>('+s.qPct+'%)':'물음표는 '+s.qPct+'%로 드물어요');
+
+  $('t-kw').innerHTML = s.kw.length
+    ? s.kw.map(function(k){ return '<span>'+k[0].replace(/[<>&]/g,'')+'<i>'+k[1]+'</i></span>'; }).join('')
+    : '<span>겹치는 단어 없음</span>';
+
+  $('today').hidden=false;
+  $('todayfail').hidden=true;
+}
+
+(function loadToday(){
+  var f = (typeof fetch==='function') ? fetch('./data/latest.json?v='+Date.now()) : Promise.reject();
+  Promise.resolve(f).then(function(r){
+    if(!r.ok) throw 0;
+    return r.json();
+  }).then(function(j){
+    var src=j.sources||{};
+    var vids=(src.hot&&src.hot.KR) || (src.chart&&src.chart.KR);
+    if(!vids || !vids.length || vids.length<5) throw 0;   // 표본이 너무 적으면 계산 안 함
+    TODAY=compute(vids);
+    renderToday(TODAY, j.t||Date.now());
+  }).catch(function(){
+    TODAY=null;
+    $('today').hidden=true;
+    $('todayfail').hidden=false;
+  });
+})();
+
+/* ================= 🤖 프롬프트 생성 ================= */
+function buildPrompt(item,fmt){
+  var isS = fmt==='shorts';
+  var L=[];
+  L.push('당신은 한국 쇼핑 쇼츠 전문 작가입니다. 짧은 영상 하나로 물건을 팔아본 사람처럼, 군더더기 없이 씁니다.');
+  L.push('');
+  L.push('[상품] '+item);
+  L.push('[형식] '+(isS?'유튜브 쇼츠 (세로, 15~30초)':'유튜브 롱폼 (가로, 3~8분)'));
+
+  if(TODAY){
+    L.push('');
+    L.push('[오늘 한국 유튜브 실측 — 급상승 '+TODAY.n+'개 기준]');
+    L.push('- 급상승의 '+TODAY.shortsPct+'%가 3분 이하(쇼츠)');
+    L.push('- 제목 평균 '+TODAY.titleLen+'자 / 숫자 포함 '+TODAY.numPct+'% / 이모지 '+TODAY.emoPct+'% / 물음표 '+TODAY.qPct+'%');
+    if(TODAY.kw.length) L.push('- 지금 뜨는 단어: '+TODAY.kw.map(function(k){return k[0];}).join(', '));
+    if(TODAY.hours.length) L.push('- 업로드가 몰리는 시간대(KST): '+TODAY.hours.map(function(h){return h.label;}).join(', '));
+    L.push('위 수치에 맞춰 써 주세요. 특히 제목은 '+TODAY.titleLen+'자 안팎으로 하고, 3개 중 최소 2개에는 숫자를 넣으세요.');
+  }
+
+  L.push('');
+  L.push('아래 4가지를 순서대로 만들어 주세요.');
+  L.push('');
+  L.push('1) 대본 — 초 단위로 [화면에 보이는 것 / 자막 / 내레이션]을 나눠서');
+  if(isS){
+    L.push('   - 0~2초: 문제 상황을 화면으로 후킹 (말 설명 금지, 보여주기)');
+    L.push('   - 3~10초: 상품이 그 문제를 해결하는 장면');
+    L.push('   - 11~20초: 결과 + 가격을 숫자로 크게');
+    L.push('   - 마지막 2초: "링크는 댓글에" 유도 한 줄');
+  }else{
+    L.push('   - 0~15초: 문제 상황 후킹 + 이 영상에서 뭘 보여줄지 예고');
+    L.push('   - 15초~2분: 상품이 문제를 해결하는 과정 (실사용 위주)');
+    L.push('   - 2~5분: 장단점, 비슷한 제품과 비교, 가격');
+    L.push('   - 마지막 30초: 정리 + "링크는 설명란/댓글에" 유도');
+  }
+  L.push('2) 제목 3개안 — 상품명이 아니라 결과를 앞에');
+  L.push('3) 첫 화면(0초) 자막 문구 — 10자 이내, 소리 꺼도 무슨 영상인지 알 수 있게');
+  L.push('4) 해시태그 5개');
+  L.push('');
+  L.push('[제약]');
+  L.push('- 과장·허위 효능 표현 금지. 실제 상품 설명 범위 안에서만 쓸 것.');
+  L.push('- "최고", "무조건", "1위" 같은 근거 없는 최상급 표현 쓰지 말 것.');
+  L.push('- 대본 마지막이나 설명란 안내에 "쿠팡 파트너스 활동으로 수수료를 받습니다" 고지 문구를 포함할 것.');
+  return L.join('\n');
+}
+
+$('g-make').onclick=function(){
+  var item=$('g-item').value.trim();
+  if(!item){ $('g-item').focus(); $('out').value='먼저 팔 상품을 적어주세요. (예: 자석 붙는 무선 핸디 청소기 1만 9천원)'; return; }
+  $('out').value=buildPrompt(item,$('g-fmt').value);
+};
+
+$('g-copy').onclick=function(){
+  var ta=$('out'), btn=this;
+  if(!ta.value) return;
+  function ok(){ var t=btn.textContent; btn.textContent='복사됨 ✓'; setTimeout(function(){ btn.textContent=t; },1400); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value).then(ok, sel);
+  }else sel();
+  function sel(){ ta.readOnly=false; ta.select(); try{ document.execCommand('copy'); ok(); }catch(e){} ta.readOnly=true; }
+};
 </script>
 </body>
 </html>
