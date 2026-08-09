@@ -1,0 +1,12 @@
+{
+  "name": "yt-trend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "유튜브 글로벌 트렌드 수집기 (GitHub Actions)",
+  "scripts": {
+    "collect": "node collect.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.116.0"
+  }
+}

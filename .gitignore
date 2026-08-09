@@ -1,2 +1,5 @@
 # 로컬 더블클릭용 구버전 (레포에는 index.html이 동일 기능 수행)
 유튜브 트렌드 분석.html
+
+# npm ci가 package-lock.json으로 복원한다 (lock 파일은 반드시 커밋)
+node_modules/
