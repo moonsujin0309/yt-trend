@@ -134,8 +134,6 @@ button{font-family:inherit;cursor:pointer;border:none}
 .prod .lk{font-size:13.5px;font-weight:600;color:var(--ink2);text-decoration:none;
   border:1px solid var(--line2);border-radius:10px;padding:10px 14px;background:#fff;transition:.13s}
 .prod .lk:hover{background:var(--tint);color:var(--ink)}
-.prod .fire{display:inline-block;font-size:12.5px;font-weight:700;color:#8a3200;
-  background:#ffeadf;border-radius:999px;padding:4px 11px;margin-bottom:10px}
 .prow{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 #pmore{background:#fff;border:1px solid var(--line2);color:var(--ink);font-size:14.5px;
   font-weight:700;border-radius:11px;padding:12px 22px;transition:.13s}
@@ -700,7 +698,6 @@ draw();
    ./data/latest.json 의 한국(KR) 급상승만 써서 "어떻게 만들지"를 계산한다.
    실패하면(파일 없음·file:// 로 열기) 블록을 통째로 숨기고 링크 한 줄만 남긴다 — 빈 껍데기·에러 노출 금지. */
 var TODAY = null;   // 프롬프트 생성기가 그대로 가져다 쓴다
-var CORPUS = '';    // 오늘 전체 영상 제목 — 상품 카탈로그의 트렌드 겹침 판정용
 
 var STOP = ('the,a,an,and,or,of,to,in,on,for,with,is,are,was,be,this,that,it,at,by,from,as,'+
   'you,your,my,we,it,its,vs,ft,feat,official,video,mv,live,new,full,shorts,short,ep,part,youtube,'+
@@ -923,18 +920,19 @@ function need(p){
   return comma(Math.ceil(100000/avg))+'개 팔아야 해요';
 }
 
-function pickProducts(mon, corpus, offset){
+function pickProducts(mon, offset){
   var scored = PRODUCTS.map(function(p,i){
     var s = 0;
     if(p.m.length===12) s += 3;                                  // 연중 상품은 기본점
     else if(p.m.indexOf(mon)>=0) s += 10;                        // 이번 달이 성수기
     else if(p.m.indexOf(mon===12?1:mon+1)>=0 ||
             p.m.indexOf(mon===1?12:mon-1)>=0) s += 4;            // 인접 달
-    // 2글자 미만 키워드는 무조건 버린다 — '발'이 "발광의민족"에 걸려 1순위를 뒤집은 적이 있다.
-    // 짧은 한글 키워드는 부분매칭 특성상 반드시 오탐한다. 사전에 추가할 땐 3글자 이상을 권장.
-    var hot = p.t.some(function(k){ return k.length>=2 && corpus.indexOf(k)>=0; });
-    if(hot) s += 5;
-    return {p:p, s:s, hot:hot, i:i};
+    /* 트렌드 제목과의 키워드 겹침으로 가점을 주던 로직은 제거했다.
+       영상 제목 400개 중 상품 관련 단어는 1개 수준이라 표본이 없고, 실제로 걸린 것도
+       '정리'→"마트 정리하는 게임", '캠핑'→"캠핑카 세계여행"처럼 맥락이 전혀 다른 오탐이었다.
+       그 가점이 계절 점수를 뒤집어 8월에 선풍기 대신 책상 정리함을 1순위로 올렸다.
+       상품 선정은 계절만으로 한다 — 근거 없는 신호를 섞지 않는다. */
+    return {p:p, s:s, i:i};
   }).filter(function(x){ return x.s>0; });
 
   scored.sort(function(a,b){ return b.s-a.s || a.i-b.i; });
@@ -948,7 +946,7 @@ var MONNAME=['','1월','2월','3월','4월','5월','6월','7월','8월','9월','
 var pOffset=0, pMon=new Date().getMonth()+1;
 
 function renderProducts(){
-  var list = pickProducts(pMon, CORPUS, pOffset);
+  var list = pickProducts(pMon, pOffset);
   $('p-title').textContent = MONNAME[pMon]+'에 팔면 좋은 상품';
   $('p-lead').innerHTML = '지금은 <b>'+MONNAME[pMon]+'</b>이에요. 이 시기에 검색·구매가 몰리는 품목 중 '+
     '<b>쇼츠로 보여주기 쉬운 것</b>만 골랐습니다. 마음에 드는 걸 눌러 바로 대본을 뽑으세요.';
@@ -957,7 +955,6 @@ function renderProducts(){
     var p=x.p;
     return '<div class="prod'+(idx===0?' top':'')+'">'+
       '<span class="rank'+(idx===0?'':' hot')+'">'+(idx===0?'★ 오늘의 추천':'#'+(idx+1))+'</span>'+
-      (x.hot?'<div class="fire">🔥 오늘 트렌드 제목에도 등장</div>':'')+
       '<h3>'+p.n+'</h3>'+
       '<div class="tags"><span class="price">💰 '+p.p+'</span>'+
         '<span class="rate r-'+p.c+'">'+RATE[p.c].l+' '+RATE[p.c].p+'</span></div>'+
@@ -980,6 +977,7 @@ function renderProducts(){
   });
 }
 $('pmore').onclick=function(){ pOffset+=3; renderProducts(); };
+renderProducts();   // 상품은 날짜만으로 정해진다 — latest.json 로딩과 무관하게 즉시 그린다
 
 (function loadToday(){
   var f = (typeof fetch==='function') ? fetch('./data/latest.json?v='+Date.now()) : Promise.reject();
@@ -988,14 +986,6 @@ $('pmore').onclick=function(){ pOffset+=3; renderProducts(); };
     return r.json();
   }).then(function(j){
     var src=j.sources||{};
-    // 상품 판정용 말뭉치는 전 국가 제목을 다 쓴다 — 표본이 클수록 겹침 판정이 의미 있다
-    var all=[];
-    ['hot','chart'].forEach(function(s){
-      Object.keys(src[s]||{}).forEach(function(cc){ all=all.concat(src[s][cc]||[]); });
-    });
-    CORPUS = all.map(function(v){ return v.title||''; }).join(' ').toLowerCase();
-    renderProducts();
-
     var vids=(src.hot&&src.hot.KR) || (src.chart&&src.chart.KR);
     if(!vids || !vids.length || vids.length<5) throw 0;   // 표본이 너무 적으면 계산 안 함
     TODAY=compute(vids);
@@ -1004,7 +994,6 @@ $('pmore').onclick=function(){ pOffset+=3; renderProducts(); };
     TODAY=null;
     $('todaybox').hidden=true;
     $('todayfail').hidden=false;
-    renderProducts();   // 상품 추천은 날짜만으로도 돌아간다 — 데이터가 없어도 비우지 않는다
   });
 })();
 
