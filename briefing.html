@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>동향 브리핑 — 지금 유튜브는 이렇습니다</title>
+<style>
+:root{
+  --ink:#16181d; --ink2:#4d535e; --ink3:#868c98;
+  --paper:#fff; --tint:#f5f3ef; --line:#e7e5e0; --line2:#d8d5ce;
+  --accent:#1a5cb0; --accent2:#4a9fd8; --accent-bg:#eef3fb;
+  --good:#0d7a52; --good-bg:#ecf6f1;
+  --warn:#8a5300; --warn-bg:#fdf4e3;
+  --hot:#d92b4b; --hot-bg:#fdf1f3;
+  --dark:#14161c; --dark2:#1c1f27;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  font-size:17px;line-height:1.78;letter-spacing:-.01em;word-break:keep-all;overflow-wrap:anywhere;
+  -webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-underline-offset:3px}
+b{font-weight:700}
+button{font-family:inherit;cursor:pointer;border:none}
+
+.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line)}
+.top .in{max-width:1000px;margin:0 auto;padding:13px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top .brand{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.top .brand em{font-style:normal;color:var(--accent)}
+.top .sp{flex:1}
+.nav{font-size:13.5px;font-weight:600;color:var(--ink2);text-decoration:none;
+  border:1px solid var(--line2);border-radius:999px;padding:7px 15px;transition:.13s}
+.nav:hover{background:var(--tint);color:var(--ink);border-color:var(--ink3)}
+
+.band{padding:64px 0}
+.band.tint{background:var(--tint)}
+.band.dark{background:var(--dark);color:#fff}
+.in{max-width:1000px;margin:0 auto;padding:0 32px}
+.reading{max-width:760px}
+
+/* 헤드라인 */
+.hero{background:var(--dark);color:#fff;padding:66px 0 60px}
+.hero .kicker{font-size:12.5px;font-weight:800;letter-spacing:.15em;color:var(--accent2);margin-bottom:16px}
+.hero h1{font-size:40px;line-height:1.3;font-weight:800;letter-spacing:-.035em;margin-bottom:18px}
+.hero h1 u{text-decoration-color:var(--accent2);text-decoration-thickness:4px;text-underline-offset:6px}
+.hero .when{font-size:14px;color:#8f97a7}
+.hero .fail{font-size:17px;color:#a4abbb;background:var(--dark2);border:1px solid #282b34;
+  border-radius:14px;padding:20px 24px;margin-top:22px}
+.hero .fail a{color:#7fb4ff}
+
+.shead{margin-bottom:30px}
+.shead .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.12em;
+  background:var(--accent);color:#fff;border-radius:999px;padding:6px 15px;margin-bottom:14px}
+.shead h2{font-size:30px;font-weight:800;letter-spacing:-.035em;line-height:1.3}
+.shead p{margin-top:10px;font-size:16.5px;color:var(--ink2);max-width:660px}
+
+/* 요약 카드 */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:26px}
+.card{background:#fff;border:1px solid var(--line2);border-radius:16px;padding:22px 24px;min-width:0}
+.card .k{font-size:12.5px;font-weight:700;letter-spacing:.05em;color:var(--ink3);margin-bottom:9px}
+.card .v{font-size:30px;font-weight:800;letter-spacing:-.035em;line-height:1.2;margin-bottom:8px}
+.card .v small{font-size:14px;font-weight:600;color:var(--ink3);letter-spacing:0}
+.card .d{font-size:14.5px;line-height:1.6;color:var(--ink2)}
+.card .d b{color:var(--ink)}
+
+/* 한 줄 판단 */
+.verdict{border-radius:16px;padding:22px 26px;font-size:18px;line-height:1.7;margin-bottom:26px;font-weight:600}
+.verdict.go{background:var(--good-bg);color:#0b4c34}
+.verdict.mid{background:var(--warn-bg);color:#5c3a00}
+.verdict.no{background:var(--hot-bg);color:#8c1b33}
+.verdict b{font-weight:800}
+
+/* 막대 */
+.bars{background:#fff;border:1px solid var(--line2);border-radius:16px;padding:22px 26px}
+.brow{display:flex;align-items:center;gap:12px;font-size:15.5px;margin-bottom:11px}
+.brow:last-child{margin-bottom:0}
+.brow .lbl{width:78px;flex:none;color:var(--ink2);font-weight:600}
+.brow .bar{flex:1;height:14px;background:#eceae6;border-radius:99px;overflow:hidden}
+.brow .bar i{display:block;height:100%;background:var(--accent2);border-radius:99px}
+.brow.top .lbl{color:var(--ink);font-weight:800}
+.brow.top .bar i{background:var(--accent)}
+.brow .val{width:74px;text-align:right;flex:none;color:var(--ink2);font-weight:600;font-size:14.5px}
+.brow.top .val{color:var(--ink);font-weight:800}
+.barnote{font-size:15px;color:var(--ink2);margin-top:18px}
+.barnote b{color:var(--ink)}
+
+.kws{display:flex;flex-wrap:wrap;gap:9px}
+.kws span{background:#fff;border:1px solid var(--line2);border-radius:999px;padding:9px 16px;
+  font-size:15.5px;font-weight:600}
+.kws span i{font-style:normal;color:var(--ink3);font-size:12.5px;margin-left:6px}
+
+.note{background:var(--accent-bg);border-radius:14px;padding:18px 22px;font-size:16px;
+  line-height:1.7;color:#1c3559;margin-top:22px}
+.note b{color:#0f2d52}
+
+/* 프롬프트 */
+#pbox{background:#fff;border:1px solid var(--line2);border-radius:18px;padding:28px 30px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.btn{background:var(--accent);color:#fff;padding:13px 24px;font-size:15.5px;font-weight:700;border-radius:11px}
+.btn:hover{background:#134a91}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line2);font-weight:600}
+.btn.ghost:hover{background:var(--tint)}
+#pout{width:100%;min-height:280px;background:#fcfbfa;border:1px solid var(--line2);color:var(--ink);
+  border-radius:13px;padding:18px 20px;font-size:13.5px;line-height:1.72;
+  font-family:'Consolas','SFMono-Regular','Malgun Gothic',monospace;resize:vertical;white-space:pre-wrap}
+#pout:focus{outline:none;border-color:var(--line2)}
+
+footer{background:var(--tint);border-top:1px solid var(--line)}
+footer .in{padding:34px 32px 60px;color:var(--ink3);font-size:14px;line-height:1.75}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="in">
+    <div class="brand">📰 동향 <em>브리핑</em></div>
+    <div class="sp"></div>
+    <a class="nav" href="./index.html">← 트렌드 분석</a>
+    <a class="nav" href="./shopping-shorts.html">🛒 쇼핑숏츠 만들기</a>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="in reading">
+    <div class="kicker">지금 유튜브 판세</div>
+    <h1 id="headline">불러오는 중…</h1>
+    <div class="when" id="when"></div>
+    <div class="fail" id="fail" hidden>
+      데이터를 못 읽었어요. <a href="./index.html">트렌드 분석 페이지</a>에서 확인하세요.
+      (이 페이지를 <b>파일로 직접 열면</b> 데이터를 못 읽습니다)
+    </div>
+  </div>
+</section>
+
+<main id="main" hidden>
+
+<!-- 판세 -->
+<section class="band">
+  <div class="in">
+    <div class="shead">
+      <span class="badge">01 · 판세</span>
+      <h2>지금 무엇이 유리한가</h2>
+      <p>수집된 영상을 그대로 세어본 결과예요. 해석까지 붙여뒀습니다.</p>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <div class="cards">
+      <div class="card"><div class="k">쇼츠 비중</div><div class="v" id="c-fmt"></div><div class="d" id="c-fmtd"></div></div>
+      <div class="card"><div class="k">기회 신호</div><div class="v" id="c-opp"></div><div class="d" id="c-oppd"></div></div>
+      <div class="card"><div class="k">가장 활발한 나라</div><div class="v" id="c-cc"></div><div class="d" id="c-ccd"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 길이 -->
+<section class="band tint">
+  <div class="in">
+    <div class="shead">
+      <span class="badge">02 · 길이</span>
+      <h2>몇 분짜리를 만들어야 하나</h2>
+      <p id="len-lead"></p>
+    </div>
+    <div class="bars" id="lenbars"></div>
+    <div class="note" id="len-note"></div>
+  </div>
+</section>
+
+<!-- 주제 -->
+<section class="band">
+  <div class="in">
+    <div class="shead">
+      <span class="badge">03 · 주제</span>
+      <h2>어떤 분야가 뜨고 있나</h2>
+      <p id="cat-lead"></p>
+    </div>
+    <div class="bars" id="catbars"></div>
+    <div class="note" id="cat-note"></div>
+  </div>
+</section>
+
+<!-- 키워드·시간 -->
+<section class="band tint">
+  <div class="in">
+    <div class="shead">
+      <span class="badge">04 · 소재와 타이밍</span>
+      <h2>지금 뜨는 단어와 올릴 시간</h2>
+      <p>제목이나 첫 자막에 자연스럽게 섞으면 노출이 붙어요.</p>
+    </div>
+    <div class="kws" id="kws"></div>
+    <div class="note" id="time-note"></div>
+  </div>
+</section>
+
+<!-- 컨셉 프롬프트 -->
+<section class="band">
+  <div class="in">
+    <div class="shead">
+      <span class="badge">05 · 다음 수</span>
+      <h2>컨셉 잡기 — AI와 대화로 좁히세요</h2>
+      <p>어떤 주제·컨셉·형태로 갈지는 <b>당신의 조건</b>(시간, 얼굴 공개 여부, 관심사)에 달려 있어서
+        페이지가 정해줄 수 없어요. 대신 <b>오늘 수치가 박힌 질문지</b>를 만들어 드립니다.
+        복사해서 무료 Gemini나 Claude에 붙여넣고 대화하세요.</p>
+    </div>
+    <div id="pbox">
+      <div class="btns">
+        <button class="btn" id="p-make">프롬프트 만들기</button>
+        <button class="btn ghost" id="p-copy">복사</button>
+      </div>
+      <textarea id="pout" readonly placeholder="[프롬프트 만들기]를 누르세요."></textarea>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="in">
+    이 브리핑은 <b>수집된 급상승·인기 영상 표본</b>을 세어 만든 것이고, 유튜브 전체 통계가 아닙니다.
+    6시간마다 갱신돼요.<br>
+    "기회 신호"는 구독자 10만 미만인데 구독자의 3배 이상 조회된 영상 수예요 — 신규 채널이 뚫을 여지를 보는 지표입니다.
+  </div>
+</footer>
+
+<script>
+'use strict';
+var $=function(id){return document.getElementById(id);};
+
+var CAT={1:'영화·애니',2:'자동차',10:'음악',15:'반려동물',17:'스포츠',19:'여행',20:'게임',
+  22:'인물·브이로그',23:'코미디',24:'엔터테인먼트',25:'뉴스·시사',26:'노하우·스타일',
+  27:'교육',28:'과학기술',29:'사회운동'};
+var CCN={KR:'한국',US:'미국',JP:'일본',GB:'영국',IN:'인도',ID:'인도네시아',BR:'브라질',VN:'베트남'};
+
+var STOP=('the,a,an,and,or,of,to,in,on,for,with,is,are,was,be,this,that,it,at,by,from,as,you,your,my,we,its,'+
+ 'vs,ft,feat,official,video,mv,live,new,full,shorts,short,ep,part,youtube,'+
+ '그리고,하지만,있는,하는,있다,합니다,입니다,이거,저거,근데,너무,정말,진짜,완전').split(',');
+
+function pct(a,b){ return b?Math.round(a/b*100):0; }
+function words(t){ t=(t||'').toLowerCase();
+  return (t.match(/[a-z0-9]{2,}/g)||[]).concat(t.match(/[가-힣]{2,}/g)||[]); }
+
+function bars(el, rows, unit){
+  var max=1; rows.forEach(function(r){ if(r.n>max) max=r.n; });
+  var top=max;
+  el.innerHTML=rows.map(function(r){
+    return '<div class="brow'+(r.n===top&&r.n>0?' top':'')+'">'+
+      '<span class="lbl">'+r.l+'</span>'+
+      '<span class="bar"><i style="width:'+(r.n/max*100)+'%"></i></span>'+
+      '<span class="val">'+r.v+'</span></div>';
+  }).join('');
+}
+
+var D=null;   // 프롬프트가 가져다 쓴다
+
+function build(j){
+  var src=j.sources||{}, all=[], byCC={};
+  ['hot','chart'].forEach(function(s){
+    Object.keys(src[s]||{}).forEach(function(cc){
+      var v=src[s][cc]||[];
+      all=all.concat(v);
+      byCC[cc]=(byCC[cc]||0)+v.length;
+    });
+  });
+  if(all.length<20) throw 0;
+
+  var dv=all.filter(function(v){return v.dur>0;});
+  var shorts=dv.filter(function(v){return v.dur<=180;}).length;
+
+  // 길이 8구간
+  var L=[['~1분',0],['1~3분',0],['3~10분',0],['10~20분',0],['20~30분',0],['30~60분',0],['1~2시간',0],['2시간+',0]];
+  dv.forEach(function(v){ var d=v.dur;
+    var i = d<=60?0 : d<=180?1 : d<=600?2 : d<1200?3 : d<1800?4 : d<3600?5 : d<7200?6 : 7;
+    L[i][1]++; });
+
+  // 카테고리
+  var cc={}; all.forEach(function(v){ if(v.cat) cc[v.cat]=(cc[v.cat]||0)+1; });
+  var cats=Object.keys(cc).map(function(k){return {l:CAT[k]||('기타('+k+')'), n:cc[k]};})
+    .sort(function(a,b){return b.n-a.n;}).slice(0,7);
+
+  // 기회 신호
+  var opp=all.filter(function(v){return v.subs>0&&v.subs<100000&&v.views>=v.subs*3;}).length;
+
+  // 키워드
+  var kc={};
+  all.forEach(function(v){ var seen={};
+    words(v.title).forEach(function(w){
+      if(STOP.indexOf(w)>=0||/^\d+$/.test(w)||seen[w]) return;
+      seen[w]=1; kc[w]=(kc[w]||0)+1; }); });
+  var kws=Object.keys(kc).map(function(w){return [w,kc[w]];})
+    .filter(function(x){return x[1]>=3;}).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+
+  // 업로드 시간대 (KST)
+  var bk=[0,0,0,0,0,0,0,0];
+  all.forEach(function(v){ var d=new Date(v.pub); if(!isNaN(d)) bk[Math.floor(((d.getUTCHours()+9)%24)/3)]++; });
+  var hours=bk.map(function(n,i){return {i:i,n:n};}).sort(function(a,b){return b.n-a.n;}).slice(0,2)
+    .map(function(x){return (x.i*3)+'시~'+(x.i*3+3)+'시';});
+
+  // 나라
+  var topCC=Object.keys(byCC).sort(function(a,b){return byCC[b]-byCC[a];})[0];
+
+  // 제목
+  var lens=0,num=0; all.forEach(function(v){ var t=v.title||'';
+    lens+=t.replace(/\s+/g,' ').trim().length; if(/\d/.test(t)) num++; });
+
+  return {
+    t:j.t, total:all.length, dv:dv.length,
+    shortsPct:pct(shorts,dv.length), L:L, cats:cats, opp:opp, oppPct:pct(opp,all.length),
+    kws:kws, hours:hours, topCC:topCC, topCCn:byCC[topCC],
+    titleLen:Math.round(lens/all.length), numPct:pct(num,all.length)
+  };
+}
+
+function render(d){
+  // ── 헤드라인 ──
+  var head;
+  if(d.shortsPct>=55 && d.oppPct>=8) head='지금은 <u>쇼츠판이고, 신규 채널에 열려 있습니다</u>';
+  else if(d.shortsPct>=55)          head='지금은 <u>쇼츠판</u>이에요. 다만 대형 채널이 자리를 잡고 있습니다';
+  else if(d.oppPct>=8)              head='<u>롱폼이 강한데, 신규 채널도 뚫고 있습니다</u>';
+  else                              head='<u>롱폼이 강하고 대형 채널이 우세</u>합니다';
+  $('headline').innerHTML=head;
+  $('when').textContent='표본 '+d.total+'개 · '+
+    new Date(d.t).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 수집';
+
+  // ── 한 줄 판단 ──
+  var v,cls;
+  if(d.oppPct>=10){ cls='go'; v='🟢 <b>지금 시작하기 좋은 때예요.</b> 구독자가 적은 채널이 뚫은 영상이 '+
+    d.opp+'개('+d.oppPct+'%)나 됩니다. 알고리즘이 새 채널을 실어주고 있다는 뜻이에요.'; }
+  else if(d.oppPct>=5){ cls='mid'; v='🟡 <b>보통이에요.</b> 소형 채널 돌파가 '+d.opp+'개('+d.oppPct+'%)로 평범합니다. '+
+    '한 방을 노리기보다 <b>개수로 밀어붙이는</b> 게 맞아요.'; }
+  else { cls='no'; v='🔴 <b>지금은 대형 채널이 자리를 잡았어요.</b> 소형 채널 돌파가 '+d.opp+'개('+d.oppPct+'%)뿐입니다. '+
+    '조회수 욕심내지 말고 <b>꾸준히 쌓는 구간</b>으로 보세요.'; }
+  $('verdict').className='verdict '+cls;
+  $('verdict').innerHTML=v;
+
+  // ── 카드 ──
+  $('c-fmt').innerHTML=d.shortsPct+'<small>%</small>';
+  $('c-fmtd').innerHTML=d.shortsPct>=60?'3분 이하가 대다수 — <b>쇼츠로 만드세요.</b>'
+    :(d.shortsPct>=40?'쇼츠·롱폼 반반 — <b>쇼츠로 시작해도 손해 없어요.</b>'
+    :'롱폼이 강해요 — <b>쇼츠는 개수로 밀어야 합니다.</b>');
+  $('c-opp').innerHTML=d.opp+'<small>개</small>';
+  $('c-oppd').innerHTML='전체의 <b>'+d.oppPct+'%</b>가 구독자 10만 미만인데 크게 터진 영상이에요.';
+  $('c-cc').textContent=CCN[d.topCC]||d.topCC;
+  $('c-ccd').innerHTML='표본에서 <b>'+d.topCCn+'개</b>로 가장 많이 잡혔어요.';
+
+  // ── 길이 ──
+  var lrows=d.L.map(function(x){return {l:x[0], n:x[1], v:pct(x[1],d.dv)+'%'};});
+  bars($('lenbars'), lrows);
+  var longOnly=d.L.slice(3);   // 10분 이상
+  var topLong=longOnly.slice().sort(function(a,b){return b[1]-a[1];})[0];
+  var longTotal=longOnly.reduce(function(s,x){return s+x[1];},0);
+  $('len-lead').innerHTML='쇼츠는 짧을수록 유리하지만, <b>롱폼은 몇 분으로 만들지</b>가 늘 고민이죠. '+
+    '실제로 뜨고 있는 영상들의 길이를 그대로 세어봤어요.';
+  $('len-note').innerHTML='📌 <b>롱폼을 만든다면 '+topLong[0]+'짜리가 가장 많아요</b> — '+
+    '10분 넘는 영상 '+longTotal+'개 중 '+topLong[1]+'개('+pct(topLong[1],longTotal)+'%)가 이 길이입니다. '+
+    (d.L[7][1]>=longTotal*0.2
+      ? '<br>다만 <b>2시간 넘는 것도 '+pct(d.L[7][1],longTotal)+'%</b>나 돼요. 이건 대부분 라이브·다시보기·모음집이라 '+
+        '<b>따라 만들 대상이 아닙니다.</b> 편집한 롱폼을 노린다면 '+topLong[0]+' 쪽을 보세요.'
+      : '');
+
+  // ── 주제 ──
+  var crows=d.cats.map(function(x){return {l:x.l, n:x.n, v:pct(x.n,d.total)+'%'};});
+  bars($('catbars'), crows);
+  $('cat-lead').innerHTML='유튜브가 영상에 붙인 공식 분류를 세어봤어요. <b>사람이 많은 곳</b>이 어디인지 보여줍니다.';
+  $('cat-note').innerHTML='📌 <b>1위는 '+d.cats[0].l+'</b>('+pct(d.cats[0].n,d.total)+'%)이에요. '+
+    '다만 <b>큰 분야 = 쉬운 분야가 아닙니다.</b> 사람이 많은 만큼 경쟁도 세요. '+
+    '신규라면 <a href="./index.html">트렌드 분석</a>에서 <b>🌱 기회 영상만</b>을 켜고 '+
+    '<b>작은 채널이 뚫은 분야</b>를 보는 쪽이 현실적이에요.';
+
+  // ── 키워드·시간 ──
+  $('kws').innerHTML=d.kws.length
+    ? d.kws.map(function(k){return '<span>'+k[0].replace(/[<>&]/g,'')+'<i>'+k[1]+'</i></span>';}).join('')
+    : '<span>표본에서 겹치는 단어가 없어요</span>';
+  $('time-note').innerHTML='⏰ 지금 뜬 영상이 가장 많이 올라온 시간대는 <b>'+
+    (d.hours.length?d.hours.join(' · ')+' (한국시간)':'—')+'</b>예요.<br>'+
+    '제목은 평균 <b>'+d.titleLen+'자</b>이고 <b>'+d.numPct+'%</b>에 숫자가 들어 있습니다.';
+
+  $('main').hidden=false;
+}
+
+function prompt(d){
+  var L=[];
+  L.push('당신은 유튜브 채널 기획을 도와주는 코치입니다. 제가 어떤 채널을 시작할지 아직 못 정했어요.');
+  L.push('바로 정답을 주지 말고, 질문을 던져서 저에게 맞는 컨셉을 같이 좁혀 주세요.');
+  L.push('');
+  L.push('[오늘 유튜브 실측 — 표본 '+d.total+'개]');
+  L.push('- 3분 이하(쇼츠) 비중: '+d.shortsPct+'%');
+  L.push('- 구독자 10만 미만인데 크게 터진 영상: '+d.opp+'개 ('+d.oppPct+'%)');
+  var top3=d.cats.slice(0,3).map(function(c){return c.l+' '+pct(c.n,d.total)+'%';});
+  L.push('- 분야 상위: '+top3.join(' / '));
+  var lt=d.L.slice(3).slice().sort(function(a,b){return b[1]-a[1];})[0];
+  L.push('- 롱폼 중 가장 흔한 길이: '+lt[0]);
+  L.push('- 제목 평균 '+d.titleLen+'자, '+d.numPct+'%에 숫자 포함');
+  if(d.kws.length) L.push('- 자주 나오는 단어: '+d.kws.map(function(k){return k[0];}).join(', '));
+  if(d.hours.length) L.push('- 업로드가 몰리는 시간(KST): '+d.hours.join(', '));
+  L.push('');
+  L.push('[진행 방법]');
+  L.push('1) 먼저 저에게 아래를 한 번에 하나씩 물어봐 주세요. 제 답을 듣고 다음 질문을 정하세요.');
+  L.push('   - 일주일에 영상 제작에 쓸 수 있는 시간');
+  L.push('   - 얼굴/목소리 공개 가능 여부');
+  L.push('   - 이미 잘 아는 것, 남들이 나에게 자주 묻는 것');
+  L.push('   - 가진 장비와 촬영 가능한 공간');
+  L.push('   - 돈이 목적인지, 오래 할 취미인지');
+  L.push('2) 답을 다 들은 뒤, 위 실측 수치와 제 조건을 겹쳐서 **컨셉 후보 3개**를 제안해 주세요.');
+  L.push('   각 후보마다: 주제 / 형태(쇼츠·롱폼과 길이) / 채널명 예시 / 첫 5개 영상 제목');
+  L.push('3) 후보마다 이걸 솔직하게 적어 주세요.');
+  L.push('   - 왜 지금 이게 될 것 같은지 (위 수치 중 무엇에 근거하는지)');
+  L.push('   - 이미 하고 있는 채널이 얼마나 많은지, 뭘로 차별화할지');
+  L.push('   - 제가 30일 안에 지칠 위험이 있는 지점');
+  L.push('4) 마지막에 3개 중 하나를 고르라고 권하고, 그 이유를 한 문단으로 정리해 주세요.');
+  L.push('');
+  L.push('[규칙]');
+  L.push('- "열정을 따르세요" 같은 뻔한 말 금지. 위 수치와 제 조건에 근거해서만 말할 것.');
+  L.push('- 수익을 보장하는 표현 금지. 잘 안 될 가능성도 같이 말할 것.');
+  L.push('- 장비를 새로 사야 하는 컨셉은 제안하지 말 것. 지금 가진 것으로 시작할 수 있어야 합니다.');
+  L.push('- 한 번에 질문 하나씩. 제 답을 기다렸다가 다음으로 넘어가세요.');
+  return L.join('\n');
+}
+
+(function(){
+  var f=(typeof fetch==='function')?fetch('./data/latest.json?v='+Date.now()):Promise.reject();
+  Promise.resolve(f).then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(j){ D=build(j); render(D); })
+    .catch(function(){ $('headline').textContent='지금 상황을 불러오지 못했어요'; $('fail').hidden=false; });
+})();
+
+$('p-make').onclick=function(){
+  if(!D){ $('pout').value='데이터를 아직 못 읽었어요. 새로고침해 보세요.'; return; }
+  $('pout').value=prompt(D);
+};
+$('p-copy').onclick=function(){
+  var ta=$('pout'), btn=this;
+  if(!ta.value) return;
+  function ok(){ var t=btn.textContent; btn.textContent='복사됨 ✓'; setTimeout(function(){btn.textContent=t;},1400); }
+  function sel(){ ta.readOnly=false; ta.select(); try{document.execCommand('copy'); ok();}catch(e){} ta.readOnly=true; }
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(ok,sel);
+  else sel();
+};
+</script>
+</body>
+</html>

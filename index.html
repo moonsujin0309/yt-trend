@@ -25,6 +25,8 @@ header h1 span{color:var(--accent)}
 /* 트렌드를 봤으면 → 실제로 만들러 가는 동선. 링크라 <a>지만 버튼과 같은 모양 */
 a.shopbtn{display:inline-block;text-decoration:none;background:#2b2340;border:1px solid #6d5bd0;color:#c9bfff;font-weight:600}
 a.shopbtn:hover{background:#382d52}
+a.briefbtn{display:inline-block;text-decoration:none;background:#152a33;border:1px solid #3d7f96;color:#9fd8ea;font-weight:600}
+a.briefbtn:hover{background:#1c3742}
 
 /* ---------- 설정(온보딩) ---------- */
 #setup{max-width:640px;margin:40px auto;padding:0 20px}
@@ -112,7 +114,7 @@ select{background:var(--chip);color:var(--txt);border:1px solid var(--line);bord
 .rep{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px 19px}
 .rep .k{font-size:13.5px;font-weight:700;color:#c3cbdb;margin-bottom:12px;line-height:1.45}
 .rep .row{display:flex;align-items:center;gap:9px;font-size:13.5px;margin-bottom:7px}
-.rep .row .lbl{width:60px;color:var(--sub);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rep .row .lbl{width:66px;color:var(--sub);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rep .row .bar{flex:1;height:9px;background:var(--panel2);border-radius:4px;overflow:hidden}
 .rep .row .bar i{display:block;height:100%;background:var(--accent2);border-radius:4px}
 .rep .row.hot .lbl{color:var(--txt);font-weight:600}
@@ -153,6 +155,7 @@ dialog .keyrow{margin-bottom:10px}
   <div class="hsub" id="lastUpdate"></div>
   <div class="spacer"></div>
   <a class="iconbtn shopbtn" href="./shopping-shorts.html">🛒 쇼핑숏츠 만들기</a>
+  <a class="iconbtn briefbtn" href="./briefing.html">📰 동향 브리핑</a>
   <button class="iconbtn" id="btnRefresh" style="display:none">🔄 새로고침</button>
   <button class="iconbtn" id="btnSettings" style="display:none">⚙️ 설정</button>
 </header>
@@ -787,9 +790,11 @@ function renderReport(vids){
 
   // ⏱️ 길이 분포
   const dv=vids.filter(v=>v.dur>0);
-  const dLbl=['~1분','1~3분','3~10분','10~20분','20분+'];
-  const dCnt=[0,0,0,0,0];
-  dv.forEach(v=>{ const d=v.dur; dCnt[d<=60?0:d<=180?1:d<=600?2:d<=1200?3:4]++; });
+  // 20분+가 전체의 3분의 1이고 그 안이 2시간까지 넓게 퍼져 있어 하나로 묶으면 정보가 없다 — 4구간으로 쪼갬
+  const dLbl=['~1분','1~3분','3~10분','10~20분','20~30분','30~60분','1~2시간','2시간+'];
+  const dCnt=[0,0,0,0,0,0,0,0];
+  dv.forEach(v=>{ const d=v.dur;
+    dCnt[d<=60?0:d<=180?1:d<=600?2:d<1200?3:d<1800?4:d<3600?5:d<7200?6:7]++; });
   const dMax=Math.max(...dCnt,1);
   const durHtml=dCnt.map((c,i)=>
     `<div class="row ${c>0&&c===Math.max(...dCnt)?'hot':''}"><span class="lbl">${dLbl[i]}</span><span class="bar"><i style="width:${c/dMax*100}%"></i></span><span class="val">${dv.length?Math.round(c/dv.length*100):0}%</span></div>`).join('');
