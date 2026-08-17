@@ -39,6 +39,41 @@ a{color:var(--info);text-underline-offset:3px}
 b,strong{font-weight:700;color:inherit}
 button{font-family:inherit;cursor:pointer;border:none}
 
+/* ===== 좌측 레일 · 7일 코스 =====
+   본문을 통째로 오른쪽으로 밀어 겹침을 없앤다(미디어쿼리 없이). */
+body{padding-left:238px}
+.rail{position:fixed;left:0;top:0;bottom:0;width:238px;z-index:60;background:var(--dark);color:#fff;
+  padding:22px 16px 20px;overflow-y:auto;display:flex;flex-direction:column;border-right:1px solid #2b2f3a}
+.rail .rbrand{font-size:15px;font-weight:800;letter-spacing:-.02em;margin-bottom:2px}
+.rail .rbrand em{font-style:normal;color:var(--accent2)}
+.rail .rg{font-size:12.5px;font-weight:800;letter-spacing:.1em;color:#7b8394;margin:16px 0 7px;display:flex}
+.rail .rg span{margin-left:auto;letter-spacing:0;font-weight:700;color:#4ade80}
+.rail a.ri{display:block;font-size:14.5px;font-weight:600;color:#c8cedb;text-decoration:none;
+  padding:8px 11px;border-radius:9px;transition:.12s}
+.rail a.ri:hover{background:#22252e;color:#fff}
+.rail button.rd{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;
+  color:#c8cedb;font-size:14.5px;font-weight:600;line-height:1.35;padding:7px 11px;border-radius:9px;transition:.12s}
+.rail button.rd i{font-style:normal;flex:none;width:22px;height:22px;border-radius:7px;background:#2b2f3a;
+  color:#9aa2b1;font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.rail button.rd:hover{background:#22252e;color:#fff}
+.rail button.rd.done i{background:var(--good);color:#fff}
+.rail button.rd.on{background:var(--accent);color:#fff}
+.rail button.rd.on i{background:rgba(255,255,255,.24);color:#fff}
+.rail .rall{margin-top:14px;width:100%;background:#22252e;color:#c8cedb;
+  font-size:13.5px;font-weight:700;padding:10px;border-radius:9px;transition:.12s}
+.rail .rall:hover{background:#2f333e;color:#fff}
+.rail .rall.on{background:var(--good);color:#fff}
+.rail .rfoot{margin-top:auto;padding-top:14px;font-size:13px;line-height:1.6;color:#7b8394}
+
+/* 하루치 끝 — 어느 배경 위에 놓여도 읽히도록 다크 카드로 고정 */
+#dayend{max-width:760px;margin:52px 0 0;padding:26px 28px;background:var(--dark);color:#fff;border-radius:18px}
+#dayend b{display:block;font-size:19px}
+#dayend p{margin-top:7px;font-size:16px;color:#a4abbb}
+#dayend .db{margin-top:18px;display:flex;gap:10px}
+#dayend button{font-size:15px;font-weight:700;padding:11px 20px;border-radius:11px}
+#dayend .go{background:var(--accent);color:#fff}
+#dayend .later{background:#262a34;color:#c8cedb}
+
 /* ===== 헤더 ===== */
 .top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line)}
@@ -55,6 +90,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 .band.tint{background:var(--tint)}
 .band.dark{background:var(--dark);color:#fff}
 .band.tight{padding:56px 0}
+[data-day]{scroll-margin-top:72px}   /* 스티키 헤더에 제목이 가리지 않게 */
 .in{max-width:1060px;margin:0 auto;padding:0 32px}
 .reading{max-width:760px}
 
@@ -259,6 +295,28 @@ footer a{color:var(--ink2)}
 </head>
 <body>
 
+<nav class="rail">
+  <div class="rbrand">🛒 쇼핑 <em>쇼츠</em></div>
+
+  <div class="rg">매일 쓰는 것</div>
+  <a class="ri" href="#today">📊 오늘 수치</a>
+  <a class="ri" href="#pick">🛍️ 오늘의 상품</a>
+  <a class="ri" href="#prompt">🤖 대본 프롬프트</a>
+  <a class="ri" href="#todoband">✅ 오늘 할 일</a>
+
+  <div class="rg">7일 코스 <span id="rprog">0/7</span></div>
+  <button class="rd" data-go="1"><i>1</i><span>돈이 들어오는 길</span></button>
+  <button class="rd" data-go="2"><i>2</i><span>채널 기본 세팅</span></button>
+  <button class="rd" data-go="3"><i>3</i><span>팔 물건 고르기</span></button>
+  <button class="rd" data-go="4"><i>4</i><span>찍고 만들기</span></button>
+  <button class="rd" data-go="5"><i>5</i><span>제목과 링크</span></button>
+  <button class="rd" data-go="6"><i>6</i><span>계정 지키기</span></button>
+  <button class="rd" data-go="7"><i>7</i><span>30일, 그리고 500명</span></button>
+  <button class="rall" id="rall">📖 전체 펼쳐 보기</button>
+
+  <div class="rfoot">하루에 하나씩만 읽으세요.<br>어디까지 봤는지 이 브라우저가 기억합니다.</div>
+</nav>
+
 <div class="top">
   <div class="in">
     <div class="brand">🛒 쇼핑 <em>쇼츠</em> 만들기</div>
@@ -325,7 +383,7 @@ footer a{color:var(--ink2)}
 </section>
 
 <!-- ══════════ 구간 1 · 오늘의 상품 (틴트) ══════════ -->
-<section class="band tint">
+<section class="band tint" id="pick">
   <div class="in">
     <div class="shead">
       <span class="badge">STEP 01 · 오늘 뭘 팔까</span>
@@ -342,7 +400,7 @@ footer a{color:var(--ink2)}
 </section>
 
 <!-- ══════════ 구간 2 · 프롬프트 (흰색) ══════════ -->
-<section class="band">
+<section class="band" id="prompt">
   <div class="in">
     <div class="shead">
       <span class="badge">STEP 02 · 대본 만들기</span>
@@ -373,8 +431,8 @@ footer a{color:var(--ink2)}
   </div>
 </section>
 
-<!-- ══════════ 구간 3 · 수익 구조 (틴트) ══════════ -->
-<section class="band tint">
+<!-- ══════════ 구간 3 · 수익 구조 (틴트) = DAY 1 ══════════ -->
+<section class="band tint" data-day="1">
   <div class="in">
     <div class="shead">
       <span class="badge">MONEY · 돈 들어오는 길</span>
@@ -432,29 +490,17 @@ footer a{color:var(--ink2)}
   </div>
 </section>
 
-<!-- ══════════ 구간 4 · 7단계 (흰색) ══════════ -->
-<section class="band">
+<!-- ══════════ 구간 4 · 실행 10단계 (흰색) = DAY 2~7 ══════════ -->
+<section class="band" id="course">
   <div class="in">
     <div class="shead">
       <span class="badge">HOW TO · 실행</span>
       <h2>순서대로 하기</h2>
-      <p>위에서부터 차례로. 건너뛰지 않는 게 제일 빠릅니다.</p>
-    </div>
-    <div class="toc">
-      <a href="#s0"><em>0</em>채널 기본 세팅</a>
-      <a href="#s1"><em>1</em>팔 물건 검증</a>
-      <a href="#s2"><em>2</em>영상 소재 구하기</a>
-      <a href="#s3"><em>3</em>15~30초로 만들기</a>
-      <a href="#s4"><em>4</em>제목 쓰기</a>
-      <a href="#s5"><em>5</em>링크 연결하기</a>
-      <a href="#s6"><em>6</em>돈 된 영상 추적</a>
-      <a href="#s7"><em>7</em>계정 안 날리기</a>
-      <a href="#s8"><em>8</em>하루 1개씩 30일</a>
-      <a href="#s9"><em>9</em>500명 → 유튜브 쇼핑</a>
+      <p id="course-lead">위에서부터 차례로. 건너뛰지 않는 게 제일 빠릅니다.</p>
     </div>
 
     <div class="reading">
-      <section class="step" id="s0">
+      <section class="step" id="s0" data-day="2">
         <span class="eyebrow">STEP 0 · 채널 만든 날</span>
         <h2>기능 잠금부터 풀기</h2>
         <p class="sum">이 다섯 개를 안 해두면 <b>영상을 아무리 올려도 기능이 잠긴 채로 굴러갑니다.</b></p>
@@ -499,7 +545,7 @@ footer a{color:var(--ink2)}
         </div>
       </section>
 
-      <section class="step" id="s1">
+      <section class="step" id="s1" data-day="3">
         <span class="eyebrow">STEP 1</span>
         <h2>팔 물건 검증하기</h2>
         <p class="sum">위에서 고른 상품을 <b>데이터랩으로 한 번 확인</b>하고 확정하세요.</p>
@@ -542,7 +588,7 @@ footer a{color:var(--ink2)}
         </div>
       </section>
 
-      <section class="step" id="s2">
+      <section class="step" id="s2" data-day="4">
         <span class="eyebrow">STEP 2</span>
         <h2>영상 소재 구하기</h2>
         <p class="sum">직접 찍은 것 · 판매자 제공 소재 · 무료 스톡. <b>이 셋 밖으로 나가지 마세요.</b></p>
@@ -578,7 +624,7 @@ footer a{color:var(--ink2)}
         </div>
       </section>
 
-      <section class="step" id="s3">
+      <section class="step" id="s3" data-day="4">
         <span class="eyebrow">STEP 3</span>
         <h2>템플릿 하나를 고정하세요</h2>
         <p class="sum">영상마다 새로 기획하지 마세요. <b>공식을 하나 정해두고 상품만 갈아끼웁니다.</b></p>
@@ -605,7 +651,7 @@ footer a{color:var(--ink2)}
           <b>짧게 끊고 끝까지 보게 하는 쪽</b>이 항상 유리해요. 할 말이 남았어도 자르세요.</div>
       </section>
 
-      <section class="step" id="s4">
+      <section class="step" id="s4" data-day="5">
         <span class="eyebrow">STEP 4</span>
         <h2>제목 쓰기</h2>
         <p class="sum">물건 이름 말고 <b>결과</b>를 앞에. 그리고 숫자를 넣으세요.</p>
@@ -617,7 +663,7 @@ footer a{color:var(--ink2)}
         <div class="tip">💡 맨 위 <b>제목 공식</b> 카드의 길이·숫자 비율을 그대로 맞추면 됩니다.</div>
       </section>
 
-      <section class="step" id="s5">
+      <section class="step" id="s5" data-day="5">
         <span class="eyebrow">STEP 5</span>
         <h2>링크 연결하기</h2>
         <p class="sum">쇼츠 밑에는 링크를 달아도 소용없어요. <b>프로필로 보내야 합니다.</b></p>
@@ -634,7 +680,7 @@ footer a{color:var(--ink2)}
           빠지면 과태료 대상이고, <b>쿠팡이 계정을 정지하는 1순위 사유</b>이기도 해요.</div>
       </section>
 
-      <section class="step" id="s6">
+      <section class="step" id="s6" data-day="6">
         <span class="eyebrow">STEP 6</span>
         <h2>어떤 영상이 돈이 됐는지 추적하기</h2>
         <p class="sum">이걸 안 하면 <b>뭐가 먹혔는지 모른 채 감으로 만들게 됩니다.</b></p>
@@ -651,7 +697,7 @@ footer a{color:var(--ink2)}
         <div class="tip">💡 subid는 영상 제목이 아니라 <b>날짜+상품</b>으로 지으면 나중에 정리가 쉬워요. 예) <code>0810_핸디청소기</code></div>
       </section>
 
-      <section class="step" id="s7">
+      <section class="step" id="s7" data-day="6">
         <span class="eyebrow">STEP 7</span>
         <h2>계정 안 날리기</h2>
         <p class="sum">위반하면 <b>최근 30일 수익이 전액 몰수</b>됩니다. 주 수입이면 제일 무서운 항목이에요.</p>
@@ -674,7 +720,7 @@ footer a{color:var(--ink2)}
           주 수입으로 삼는다면 <b>두 달치 생활비를 미리 확보</b>해두고 시작하세요.</p>
       </section>
 
-      <section class="step" id="s8">
+      <section class="step" id="s8" data-day="7">
         <span class="eyebrow">STEP 8</span>
         <h2>하루 1개씩, 30일</h2>
         <p class="sum">한 방이 아니라 타율 게임. <b>10개 중 1~2개가 수익 대부분을 만듭니다.</b></p>
@@ -718,7 +764,7 @@ footer a{color:var(--ink2)}
           이 셋을 메모해두고 내 상품에 갈아끼우면 됩니다.</p>
       </section>
 
-      <section class="step" id="s9">
+      <section class="step" id="s9" data-day="7">
         <span class="eyebrow">STEP 9 · 최종 목표</span>
         <h2>구독자 500명 → 유튜브 쇼핑</h2>
         <p class="sum">여기 도달해야 <b>쇼츠에서 바로 팔 수 있습니다.</b> 그 전까진 준비 구간이에요.</p>
@@ -770,7 +816,7 @@ footer a{color:var(--ink2)}
 </section>
 
 <!-- ══════════ 구간 5 · 체크리스트 (다크) ══════════ -->
-<section class="band dark">
+<section class="band dark" id="todoband">
   <div class="in">
     <div class="shead">
       <span class="badge">CHECKLIST · 오늘</span>
@@ -837,6 +883,82 @@ $('reset').onclick=function(){
   draw();
 };
 draw();
+
+/* ================= 📅 7일 코스 =================
+   읽을거리가 길어서 하루치만 보여준다. [data-day]가 붙은 블록만 걸러내고,
+   코스 밴드(#course)는 그 안의 스텝이 전부 숨으면 같이 숨긴다 — 안 그러면 빈 머리말만 남는다.
+   '매일 쓰는 것'(오늘 수치·상품·프롬프트·체크리스트)에는 data-day를 붙이지 않았다. 매일 쓰는 도구라 항상 보여야 한다. */
+var DAYS=7, DK='ss_day', DDK='ss_daydone';
+var DT=['','돈이 들어오는 길','채널 기본 세팅','팔 물건 고르기','찍고 만들기','제목과 링크','계정 지키기','30일, 그리고 500명'];
+var dayEls=[].slice.call(document.querySelectorAll('[data-day]'));
+var dayBtns=[].slice.call(document.querySelectorAll('.rail .rd'));
+var course=$('course'), rall=$('rall'), allMode=false;
+var dend=document.createElement('div'); dend.id='dayend';
+var done=[]; try{ done=JSON.parse(localStorage.getItem(DDK)||'[]'); }catch(e){}
+var cur=+(localStorage.getItem(DK)||1); if(!(cur>=1&&cur<=DAYS)) cur=1;
+
+function dayRender(){
+  dayEls.forEach(function(el){ el.hidden = !allMode && +el.dataset.day!==cur; });
+  var inCourse=dayEls.filter(function(el){ return course.contains(el) && !el.hidden; });
+  course.hidden = inCourse.length===0;
+
+  dayBtns.forEach(function(b){
+    var d=+b.dataset.go;
+    b.classList.toggle('on', !allMode && d===cur);
+    b.classList.toggle('done', done.indexOf(d)>=0);
+  });
+  rall.classList.toggle('on', allMode);
+  rall.textContent = allMode ? '📅 하루치만 보기' : '📖 전체 펼쳐 보기';
+  $('rprog').textContent = done.length+'/'+DAYS;
+  $('course-lead').textContent = allMode
+    ? '위에서부터 차례로. 건너뛰지 않는 게 제일 빠릅니다.'
+    : 'DAY '+cur+' · '+DT[cur]+' — 오늘은 여기까지만 보면 됩니다.';
+
+  if(dend.parentNode) dend.parentNode.removeChild(dend);
+  if(allMode) return;
+  var last=dayEls.filter(function(el){ return !el.hidden; }).pop();
+  if(!last) return;
+  dend.innerHTML =
+    '<b>DAY '+cur+' 끝 — '+DT[cur]+'</b>'+
+    '<p>'+(cur<DAYS
+      ? '여기까지가 오늘 분량이에요. 내일 <b>DAY '+(cur+1)+' · '+DT[cur+1]+'</b>에서 이어집니다.'
+      : '7일 코스 끝입니다. 이제 남은 건 하루 1개씩 올리는 것뿐이에요.')+'</p>'+
+    '<div class="db"><button class="go" id="dnext">'+
+      (cur<DAYS?'✓ 읽었어요 · 다음 날 보기':'✓ 다 읽었어요')+
+    '</button><button class="later" id="dtodo">오늘 할 일 보기</button></div>';
+  // 밴드 자체가 하루치면 그 안쪽(.in)에 넣어야 좌우 여백이 맞는다
+  if(last.classList.contains('band')) last.querySelector('.in').appendChild(dend);
+  else last.parentNode.insertBefore(dend, last.nextSibling);
+
+  $('dnext').onclick=function(){
+    if(done.indexOf(cur)<0) done.push(cur);
+    try{ localStorage.setItem(DDK, JSON.stringify(done)); }catch(e){}
+    if(cur<DAYS) goDay(cur+1); else dayRender();
+  };
+  $('dtodo').onclick=function(){ $('todoband').scrollIntoView({behavior:'smooth'}); };
+}
+function goDay(d){
+  allMode=false; cur=d;
+  try{ localStorage.setItem(DK, d); }catch(e){}
+  dayRender();
+  var first=dayEls.filter(function(el){ return !el.hidden; })[0];
+  if(first) first.scrollIntoView({behavior:'smooth'});
+}
+dayBtns.forEach(function(b){ b.onclick=function(){ goDay(+b.dataset.go); }; });
+rall.onclick=function(){
+  allMode=!allMode; dayRender();
+  if(allMode) course.scrollIntoView({behavior:'smooth'});
+};
+/* 본문끼리 거는 앵커(5단계 → 0단계 등)가 숨은 날을 가리키면 그 날로 먼저 넘어간다.
+   안 그러면 링크를 눌러도 아무 일도 안 일어난다. */
+document.addEventListener('click', function(e){
+  var a=e.target.closest && e.target.closest('a[href^="#"]');
+  if(!a) return;
+  var t=document.getElementById(a.getAttribute('href').slice(1));
+  if(t && t.dataset.day && t.hidden){ e.preventDefault(); goDay(+t.dataset.day); }
+});
+
+dayRender();   /* 첫 진입에서는 스크롤하지 않는다 — 맨 위 '오늘의 상품'을 먼저 보게 */
 
 /* ================= 📊 오늘 수치 =================
    ./data/latest.json 의 한국(KR) 급상승만 써서 "어떻게 만들지"를 계산한다.
