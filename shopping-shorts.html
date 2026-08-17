@@ -48,9 +48,10 @@ body{padding-left:238px}
 .rail .rbrand em{font-style:normal;color:var(--accent2)}
 .rail .rg{font-size:12.5px;font-weight:800;letter-spacing:.1em;color:#7b8394;margin:16px 0 7px;display:flex}
 .rail .rg span{margin-left:auto;letter-spacing:0;font-weight:700;color:#4ade80}
-.rail a.ri{display:block;font-size:14.5px;font-weight:600;color:#c8cedb;text-decoration:none;
-  padding:8px 11px;border-radius:9px;transition:.12s}
-.rail a.ri:hover{background:#22252e;color:#fff}
+.rail .ri{display:block;width:100%;text-align:left;background:none;font-size:14.5px;font-weight:600;
+  color:#c8cedb;text-decoration:none;padding:8px 11px;border-radius:9px;transition:.12s}
+.rail .ri:hover{background:#22252e;color:#fff}
+.rail .ri.on{background:var(--good);color:#fff}
 .rail button.rd{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;
   color:#c8cedb;font-size:14.5px;font-weight:600;line-height:1.35;padding:7px 11px;border-radius:9px;transition:.12s}
 .rail button.rd i{font-style:normal;flex:none;width:22px;height:22px;border-radius:7px;background:#2b2f3a;
@@ -104,38 +105,15 @@ body{padding-left:238px}
 .band.dark .shead p{color:#a4abbb}
 
 /* ===== 히어로 ===== */
-.hero{background:var(--dark);color:#fff;padding:74px 0 0}
+.hero{background:var(--dark);color:#fff;padding:74px 0 52px}
 .hero .kicker{font-size:13px;font-weight:800;letter-spacing:.15em;color:var(--accent2);margin-bottom:18px}
 .hero h1{font-size:52px;line-height:1.2;font-weight:800;letter-spacing:-.04em;margin-bottom:20px}
 .hero .sub{font-size:19px;line-height:1.7;color:#a4abbb;max-width:640px}
 .hero .sub b{color:#fff}
-.hero .split{margin-top:44px;padding:22px 26px;background:#0f1116;border-radius:16px 16px 0 0;
-  border:1px solid #262a34;border-bottom:none;font-size:14.5px;color:#8f97a7}
+.hero .split{margin-top:44px;padding:22px 26px;background:#0f1116;border-radius:16px;
+  border:1px solid #262a34;font-size:14.5px;color:#8f97a7}
 .hero .split b{color:#fff}
-
-/* ===== 📊 오늘 수치 ===== */
-#today{background:var(--dark);padding-bottom:76px}
-#today .hd{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:22px}
-#today h3{font-size:22px;font-weight:800;letter-spacing:-.03em;color:#fff}
-#today .when{font-size:13px;color:#8f97a7}
-#today .live{font-size:11px;font-weight:800;letter-spacing:.1em;color:#4ade80;
-  border:1px solid #235c40;background:#132a1f;border-radius:999px;padding:4px 11px}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#282b34;
-  border:1px solid #282b34;border-radius:16px;overflow:hidden}
-.card{background:var(--dark2);padding:22px 24px;min-width:0}
-.card .k{font-size:12px;font-weight:700;letter-spacing:.06em;color:#8c93a3;margin-bottom:10px}
-.card .v{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:9px;color:#fff}
-.card .v small{font-size:14px;font-weight:600;color:#8c93a3;letter-spacing:0}
-.card .d{font-size:14.5px;line-height:1.6;color:#a8aebc}
-.card .d b{color:#fff}
-.card.wide{grid-column:1/-1}
-#t-hour{font-size:22px;letter-spacing:-.02em}
-.kws{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 10px}
-.kws span{background:#2a2e38;border-radius:7px;padding:6px 12px;font-size:14.5px;font-weight:600;color:#e8ebf2}
-.kws span i{font-style:normal;color:#7f8798;font-size:12px;margin-left:6px}
-#todayfail{font-size:16px;color:#a4abbb;background:var(--dark2);border:1px solid #282b34;
-  border-radius:16px;padding:22px 26px}
-#todayfail a{color:#7fb4ff}
+.hero .split a{color:#7fb4ff}
 
 /* ===== 🛍️ 오늘의 상품 추천 ===== */
 .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-bottom:24px}
@@ -299,10 +277,9 @@ footer a{color:var(--ink2)}
   <div class="rbrand">🛒 쇼핑 <em>쇼츠</em></div>
 
   <div class="rg">매일 쓰는 것</div>
-  <a class="ri" href="#today">📊 오늘 수치</a>
   <a class="ri" href="#pick">🛍️ 오늘의 상품</a>
   <a class="ri" href="#prompt">🤖 대본 프롬프트</a>
-  <a class="ri" href="#todoband">✅ 오늘 할 일</a>
+  <button class="ri rt" id="rtodo">✅ 오늘 할 일</button>
 
   <div class="rg">7일 코스 <span id="rprog">0/7</span></div>
   <button class="rd" data-go="1"><i>1</i><span>돈이 들어오는 길</span></button>
@@ -326,7 +303,7 @@ footer a{color:var(--ink2)}
   </div>
 </div>
 
-<!-- ══════════ 히어로 + 오늘 수치 (다크) ══════════ -->
+<!-- ══════════ 히어로 (다크) ══════════ -->
 <section class="hero">
   <div class="in reading">
     <div class="kicker">얼굴 없이 · 촬영 없이 · 15초로</div>
@@ -335,49 +312,8 @@ footer a{color:var(--ink2)}
   </div>
   <div class="in">
     <div class="split">
-      <b>뭘 팔지</b>는 계절·시기로 고릅니다 &nbsp;·&nbsp; <b>어떻게 만들지</b>는 아래 오늘 유튜브 실측 수치로 정합니다
-    </div>
-  </div>
-</section>
-
-<section id="todaywrap">
-  <div id="today">
-    <div class="in">
-      <section id="todaybox" hidden>
-        <div class="hd">
-          <h3>📊 지금 유튜브는 이렇습니다</h3>
-          <span class="live">LIVE</span>
-          <div class="when" id="t-when"></div>
-        </div>
-        <div class="cards">
-          <div class="card">
-            <div class="k">쇼츠 vs 롱폼</div>
-            <div class="v" id="t-fmt"></div>
-            <div class="d" id="t-fmtd"></div>
-          </div>
-          <div class="card">
-            <div class="k">올리기 좋은 시간대</div>
-            <div class="v" id="t-hour"></div>
-            <div class="d" id="t-hourd"></div>
-          </div>
-          <div class="card">
-            <div class="k">기회 신호</div>
-            <div class="v" id="t-opp"></div>
-            <div class="d" id="t-oppd"></div>
-          </div>
-          <div class="card wide">
-            <div class="k">제목 공식</div>
-            <div class="v" id="t-title"></div>
-            <div class="d" id="t-titled"></div>
-          </div>
-          <div class="card wide">
-            <div class="k">지금 뜨는 단어</div>
-            <div class="kws" id="t-kw"></div>
-            <div class="d">제목이나 첫 자막에 자연스럽게 섞으면 노출이 붙어요.</div>
-          </div>
-        </div>
-      </section>
-      <p id="todayfail" hidden>오늘의 수치는 <a href="./index.html">트렌드 분석 페이지</a>에서 확인하세요.</p>
+      <b>뭘 팔지</b>는 계절·시기로 고릅니다 &nbsp;·&nbsp; <b>어떻게 만들지</b>는
+      <a href="./index.html">트렌드 분석</a>의 오늘 수치가 프롬프트에 자동으로 들어갑니다
     </div>
   </div>
 </section>
@@ -660,7 +596,8 @@ footer a{color:var(--ink2)}
           <li><b>상품명을 앞에 두지 않기</b> — 아무도 모르는 이름이라 안 눌러요.</li>
           <li><b>해시태그 3~5개</b> — #쇼츠 #쿠팡추천 처럼.</li>
         </ul>
-        <div class="tip">💡 맨 위 <b>제목 공식</b> 카드의 길이·숫자 비율을 그대로 맞추면 됩니다.</div>
+        <div class="tip">💡 <b>오늘 뜨는 제목의 길이·숫자 비율</b>은 <a href="./index.html">트렌드 분석</a>에서 볼 수 있고,
+          위 <b>프롬프트</b>에도 그 수치가 자동으로 들어갑니다. 따로 외울 필요는 없어요.</div>
       </section>
 
       <section class="step" id="s5" data-day="5">
@@ -736,7 +673,7 @@ footer a{color:var(--ink2)}
             <tr><td><b>촬영 자리</b></td><td>조명·삼각대·구도를 <b>한 번 세팅하고 그대로 두세요.</b> 매번 설치하지 않기</td></tr>
             <tr><td><b>자막 스타일</b></td><td>폰트·크기·색을 <b>하나로 정해두기.</b> 매번 고르지 않기</td></tr>
             <tr><td><b>효과음·전환</b></td><td>자주 쓰는 것만 몇 개 모아두고 <b>그것만 돌려쓰기</b></td></tr>
-            <tr><td><b>업로드 시간</b></td><td>맨 위 <b>제작 지침</b>의 시간대로 <b>고정</b>. 매번 고민하지 않기</td></tr>
+            <tr><td><b>업로드 시간</b></td><td><a href="./index.html">트렌드 분석</a>에서 올라오는 시간대를 한 번 확인하고 <b>거기로 고정</b>. 매번 고민하지 않기</td></tr>
           </table>
         </div>
         <div class="key">⚙️ <b>꾸준한 사람의 비밀은 대단한 의지가 아니라, 귀찮을 이유를 미리 없애둔 것입니다.</b><br>
@@ -887,35 +824,42 @@ draw();
 /* ================= 📅 7일 코스 =================
    읽을거리가 길어서 하루치만 보여준다. [data-day]가 붙은 블록만 걸러내고,
    코스 밴드(#course)는 그 안의 스텝이 전부 숨으면 같이 숨긴다 — 안 그러면 빈 머리말만 남는다.
-   '매일 쓰는 것'(오늘 수치·상품·프롬프트·체크리스트)에는 data-day를 붙이지 않았다. 매일 쓰는 도구라 항상 보여야 한다. */
+   상품·프롬프트에는 data-day를 붙이지 않았다 — 매일 쓰는 도구라 어느 날에나 보여야 한다.
+   체크리스트만 예외로 '눌렀을 때만' 나오는 별도 뷰다. */
 var DAYS=7, DK='ss_day', DDK='ss_daydone';
 var DT=['','돈이 들어오는 길','채널 기본 세팅','팔 물건 고르기','찍고 만들기','제목과 링크','계정 지키기','30일, 그리고 500명'];
 var dayEls=[].slice.call(document.querySelectorAll('[data-day]'));
 var dayBtns=[].slice.call(document.querySelectorAll('.rail .rd'));
-var course=$('course'), rall=$('rall'), allMode=false;
+var course=$('course'), rall=$('rall'), rtodo=$('rtodo'), todoBand=$('todoband');
+/* 오늘 할 일은 '눌렀을 때 그것만' 보여준다 — 매일 화면에 딸려 나오지 않게 별도 뷰로 뺐다 */
+var mainEls=[document.querySelector('.hero'), $('pick'), $('prompt')];
+var mode='day';   // 'day' | 'all' | 'todo' — 새로고침하면 항상 day로 돌아온다
 var dend=document.createElement('div'); dend.id='dayend';
 var done=[]; try{ done=JSON.parse(localStorage.getItem(DDK)||'[]'); }catch(e){}
 var cur=+(localStorage.getItem(DK)||1); if(!(cur>=1&&cur<=DAYS)) cur=1;
 
 function dayRender(){
-  dayEls.forEach(function(el){ el.hidden = !allMode && +el.dataset.day!==cur; });
-  var inCourse=dayEls.filter(function(el){ return course.contains(el) && !el.hidden; });
-  course.hidden = inCourse.length===0;
+  var todo = mode==='todo';
+  mainEls.forEach(function(el){ el.hidden=todo; });
+  todoBand.hidden=!todo;
+  dayEls.forEach(function(el){ el.hidden = todo || (mode!=='all' && +el.dataset.day!==cur); });
+  course.hidden = todo || dayEls.filter(function(el){ return course.contains(el) && !el.hidden; }).length===0;
 
   dayBtns.forEach(function(b){
     var d=+b.dataset.go;
-    b.classList.toggle('on', !allMode && d===cur);
+    b.classList.toggle('on', mode==='day' && d===cur);
     b.classList.toggle('done', done.indexOf(d)>=0);
   });
-  rall.classList.toggle('on', allMode);
-  rall.textContent = allMode ? '📅 하루치만 보기' : '📖 전체 펼쳐 보기';
+  rall.classList.toggle('on', mode==='all');
+  rall.textContent = mode==='all' ? '📅 하루치만 보기' : '📖 전체 펼쳐 보기';
+  rtodo.classList.toggle('on', todo);
   $('rprog').textContent = done.length+'/'+DAYS;
-  $('course-lead').textContent = allMode
+  $('course-lead').textContent = mode==='all'
     ? '위에서부터 차례로. 건너뛰지 않는 게 제일 빠릅니다.'
     : 'DAY '+cur+' · '+DT[cur]+' — 오늘은 여기까지만 보면 됩니다.';
 
   if(dend.parentNode) dend.parentNode.removeChild(dend);
-  if(allMode) return;
+  if(mode!=='day') return;
   var last=dayEls.filter(function(el){ return !el.hidden; }).pop();
   if(!last) return;
   dend.innerHTML =
@@ -935,19 +879,22 @@ function dayRender(){
     try{ localStorage.setItem(DDK, JSON.stringify(done)); }catch(e){}
     if(cur<DAYS) goDay(cur+1); else dayRender();
   };
-  $('dtodo').onclick=function(){ $('todoband').scrollIntoView({behavior:'smooth'}); };
+  $('dtodo').onclick=function(){ goTodo(); };
 }
 function goDay(d){
-  allMode=false; cur=d;
+  mode='day'; cur=d;
   try{ localStorage.setItem(DK, d); }catch(e){}
   dayRender();
   var first=dayEls.filter(function(el){ return !el.hidden; })[0];
   if(first) first.scrollIntoView({behavior:'smooth'});
 }
+function goTodo(){ mode='todo'; dayRender(); window.scrollTo(0,0); }
 dayBtns.forEach(function(b){ b.onclick=function(){ goDay(+b.dataset.go); }; });
+rtodo.onclick=goTodo;
 rall.onclick=function(){
-  allMode=!allMode; dayRender();
-  if(allMode) course.scrollIntoView({behavior:'smooth'});
+  mode = mode==='all' ? 'day' : 'all';
+  dayRender();
+  (mode==='all' ? course : document.body).scrollIntoView({behavior:'smooth'});
 };
 /* 본문끼리 거는 앵커(5단계 → 0단계 등)가 숨은 날을 가리키면 그 날로 먼저 넘어간다.
    안 그러면 링크를 눌러도 아무 일도 안 일어난다. */
@@ -955,7 +902,11 @@ document.addEventListener('click', function(e){
   var a=e.target.closest && e.target.closest('a[href^="#"]');
   if(!a) return;
   var t=document.getElementById(a.getAttribute('href').slice(1));
-  if(t && t.dataset.day && t.hidden){ e.preventDefault(); goDay(+t.dataset.day); }
+  if(!t || t.offsetParent!==null) return;              // 이미 보이면 브라우저에 맡긴다
+  e.preventDefault();
+  if(t.dataset.day){ goDay(+t.dataset.day); return; }
+  mode='day'; dayRender();                             // 할 일 뷰에서 상품·프롬프트로 나가는 경우
+  t.scrollIntoView({behavior:'smooth'});
 });
 
 dayRender();   /* 첫 진입에서는 스크롤하지 않는다 — 맨 위 '오늘의 상품'을 먼저 보게 */
@@ -1022,42 +973,6 @@ function compute(vids){
     numPct:pct(num,n), emoPct:pct(emo,n), qPct:pct(q,n),
     hours:hours, opp:opp, kw:topWords(vids,8)
   };
-}
-
-function renderToday(s,t){
-  $('t-when').textContent='한국 급상승 '+s.n+'개 기준 · '+
-    new Date(t).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 수집';
-
-  $('t-fmt').textContent='쇼츠 '+s.shortsPct+'%';
-  $('t-fmtd').innerHTML = s.shortsPct>=60
-    ? '지금 한국은 쇼츠판이에요 — <b>쇼츠로 만드세요.</b>'
-    : (s.shortsPct>=40 ? '쇼츠·롱폼이 반반 — <b>쇼츠로 시작해도 손해 없어요.</b>'
-                       : '지금은 롱폼이 강해요 — <b>쇼츠는 양으로 밀어야 합니다.</b>');
-
-  if(s.hours.length){
-    $('t-hour').innerHTML = s.hours.map(function(h){ return h.label; }).join(' · ')+' <small>KST</small>';
-    $('t-hourd').innerHTML='지금 뜬 영상이 <b>이 시간대</b>에 가장 많이 올라왔어요.';
-  }else{
-    $('t-hour').textContent='—'; $('t-hourd').textContent='시각 정보가 없어요.';
-  }
-
-  $('t-opp').textContent=s.opp+'개';
-  $('t-oppd').innerHTML = s.opp>=6
-    ? '구독자 10만 미만이 크게 뚫었어요 — <b>지금은 신규 채널에 유리.</b>'
-    : (s.opp>=3 ? '소형 채널 돌파가 <b>보통 수준</b>이에요.'
-                : '대형 채널이 자리를 잡았어요 — <b>오늘은 신규에 불리, 양으로 버티세요.</b>');
-
-  $('t-title').textContent=s.titleLen+'자 안팎';
-  $('t-titled').innerHTML='<b>숫자를 넣으세요</b> — 지금 뜨는 것의 '+s.numPct+'%가 숫자 포함. '+
-    (s.emoPct>=30?'<b>이모지도 하나</b>('+s.emoPct+'%)':'이모지는 '+s.emoPct+'%라 없어도 돼요')+' · '+
-    (s.qPct>=20?'<b>물음표 제목도 통해요</b>('+s.qPct+'%)':'물음표는 '+s.qPct+'%로 드물어요');
-
-  $('t-kw').innerHTML = s.kw.length
-    ? s.kw.map(function(k){ return '<span>'+k[0].replace(/[<>&]/g,'')+'<i>'+k[1]+'</i></span>'; }).join('')
-    : '<span>겹치는 단어 없음</span>';
-
-  $('todaybox').hidden=false;
-  $('todayfail').hidden=true;
 }
 
 /* ================= 🛍️ 오늘의 상품 =================
@@ -1300,11 +1215,8 @@ renderProducts();   // 상품은 날짜만으로 정해진다 — latest.json �
     var vids=(src.hot&&src.hot.KR) || (src.chart&&src.chart.KR);
     if(!vids || !vids.length || vids.length<5) throw 0;   // 표본이 너무 적으면 계산 안 함
     TODAY=compute(vids);
-    renderToday(TODAY, j.t||Date.now());
   }).catch(function(){
-    TODAY=null;
-    $('todaybox').hidden=true;
-    $('todayfail').hidden=false;
+    TODAY=null;   // 프롬프트가 '오늘 수치' 블록 없이 나간다 — 그래도 대본은 나온다
   });
 })();
 
