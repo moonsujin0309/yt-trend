@@ -91,9 +91,12 @@ body{padding-left:238px}
 .band.tint{background:var(--tint)}
 .band.dark{background:var(--dark);color:#fff}
 .band.tight{padding:56px 0}
-[data-day]{scroll-margin-top:72px}   /* 스티키 헤더에 제목이 가리지 않게 */
+[data-day],#course{scroll-margin-top:72px}   /* 스티키 헤더에 제목이 가리지 않게 */
 .in{max-width:1060px;margin:0 auto;padding:0 32px}
-.reading{max-width:760px}
+.reading{max-width:868px}   /* 표·본문이 함께 들어가는 폭. 좁히면 표 셀이 눌린다 */
+/* 읽는 화면은 껍데기(.in)를 본문 폭에 맞춰 좁힌다 — 안 그러면 좌측 레일 때문에
+   글은 왼쪽에 붙고 오른쪽에만 큰 여백이 남아 가운데로 몰린 것처럼 보인다. */
+#course .in,[data-day] .in,#todoband .in{max-width:944px}
 
 /* ===== 구간 머리말 ===== */
 .shead{margin-bottom:38px}
@@ -197,7 +200,7 @@ body{padding-left:238px}
 .bigwarn{background:#fff4f5;border:2px solid var(--accent);border-radius:18px;padding:26px 30px;margin-bottom:24px}
 .bigwarn .bw-t{font-size:21px;font-weight:800;letter-spacing:-.03em;color:#a3122c;margin-bottom:12px;line-height:1.4}
 .bigwarn .bw-t u{text-decoration-thickness:3px;text-underline-offset:4px}
-.bigwarn p{font-size:16.5px;color:#5c2029}
+.bigwarn p{font-size:17px;color:#4a161f}
 .bigwarn .bw-src{font-size:13.5px;color:#96626b;margin-top:12px}
 td.no{color:#a32020;font-weight:700}
 td.yes{color:var(--good);font-weight:700}
@@ -213,7 +216,7 @@ td.yes{color:var(--good);font-weight:700}
 .toc a:hover em{color:#ff8098}
 
 /* ===== 단계 ===== */
-.step{padding:50px 0;border-bottom:1px solid var(--line);scroll-margin-top:70px}
+.step{padding:56px 0;border-bottom:1px solid var(--line);scroll-margin-top:70px}
 .step:last-of-type{border-bottom:none}
 .step .eyebrow{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.13em;
   color:var(--accent);background:var(--accent-bg);border-radius:999px;padding:5px 13px;margin-bottom:14px}
@@ -221,17 +224,17 @@ td.yes{color:var(--good);font-weight:700}
 .step .sum{font-size:19px;font-weight:600;line-height:1.65;margin-bottom:26px;
   padding-left:18px;border-left:4px solid var(--accent)}
 .step .sum b{font-weight:800}
-.step p{font-size:16.5px;color:var(--ink2);margin-bottom:16px}
+.step p{font-size:17px;color:var(--ink);margin-bottom:18px}
 .step h4{font-size:20px;font-weight:800;letter-spacing:-.025em;margin:36px 0 12px}
-.step ul,.step ol{margin:0 0 18px 0;padding-left:24px;font-size:16.5px;color:var(--ink2)}
+.step ul,.step ol{margin:0 0 20px 0;padding-left:25px;font-size:17px;color:var(--ink)}
 .step li{margin-bottom:11px;padding-left:4px}
 .step li::marker{color:var(--ink3);font-weight:700}
 
 /* ===== 콜아웃 ===== */
-.tip,.key,.warnline{border-radius:14px;padding:18px 22px;margin:24px 0;font-size:16px;line-height:1.7}
+.tip,.key,.warnline{border-radius:14px;padding:20px 24px;margin:26px 0;font-size:16.5px;line-height:1.75}
 .tip{background:var(--info-bg);color:#1c3559}
 .tip b{color:#0f2d52}
-.key{background:var(--good-bg);color:#0b4c34;font-size:17px}
+.key{background:var(--good-bg);color:#0b4c34;font-size:17px;line-height:1.75}
 .key b{color:#07301f}
 .warnline{background:var(--warn-bg);color:#5c3a00}
 .warnline b{color:#3d2600}
@@ -240,11 +243,11 @@ td.yes{color:var(--good);font-weight:700}
 
 /* ===== 표 ===== */
 .tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:14px;background:#fff}
-table{border-collapse:collapse;width:100%;font-size:16px}
-th,td{padding:15px 20px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:16.5px}
+th,td{padding:16px 22px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.7}
 tr:last-child td{border-bottom:none}
-th{background:var(--tint);color:var(--ink2);font-weight:700;font-size:13.5px;white-space:nowrap}
-td{color:var(--ink2)}
+th{background:var(--tint);color:var(--ink);font-weight:800;font-size:14px;letter-spacing:.02em;white-space:nowrap}
+td{color:var(--ink)}
 td b{color:var(--ink)}
 td:first-child{white-space:nowrap;color:var(--ink)}
 
@@ -885,8 +888,11 @@ function goDay(d){
   mode='day'; cur=d;
   try{ localStorage.setItem(DK, d); }catch(e){}
   dayRender();
+  /* 스텝 본문이 아니라 그 위 머리말(HOW TO · DAY N)부터 보이게 한다 —
+     스텝으로 바로 뛰면 "지금 몇 일차인지" 알려주는 줄이 화면 위로 잘려나간다. */
   var first=dayEls.filter(function(el){ return !el.hidden; })[0];
-  if(first) first.scrollIntoView({behavior:'smooth'});
+  var target = (first && course.contains(first)) ? course : first;
+  if(target) target.scrollIntoView({behavior:'smooth'});
 }
 function goTodo(){ mode='todo'; dayRender(); window.scrollTo(0,0); }
 dayBtns.forEach(function(b){ b.onclick=function(){ goDay(+b.dataset.go); }; });
