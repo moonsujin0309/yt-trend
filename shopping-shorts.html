@@ -241,6 +241,30 @@ td.yes{color:var(--good);font-weight:700}
 .warnline .src{font-size:13.5px;color:#8a6a2e;margin-top:11px}
 .warnline .src a{color:#7a5510}
 
+/* ===== 유형 고르기 (TIP 2) — 원본 플로차트를 누르는 형식으로 옮긴 것 ===== */
+.quiz{margin:0 0 20px}
+.quiz .qq,.quiz .qres{background:#fff;border:1px solid var(--line2);border-radius:16px;padding:22px 24px;margin-bottom:12px}
+.quiz .qn{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--accent);
+  background:var(--accent-bg);border-radius:999px;padding:4px 11px;margin-bottom:11px}
+.quiz .qt{display:block;font-size:20px;font-weight:800;letter-spacing:-.025em;margin-bottom:15px}
+.quiz .qo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quiz .qo button{background:var(--tint);border:1px solid var(--line2);color:var(--ink);
+  font-size:16.5px;line-height:1.5;text-align:left;padding:15px 18px;border-radius:12px;transition:.13s}
+.quiz .qo button:hover{border-color:var(--accent);background:#fff}
+.quiz .qo button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.quiz .qo button.on b{color:#fff}
+.quiz .qres{background:var(--dark);border-color:var(--dark);color:#fff}
+.quiz .qres .qn{background:rgba(255,255,255,.15);color:#ffd2da}
+.quiz .qres h3{font-size:27px;font-weight:800;letter-spacing:-.035em;line-height:1.3;margin-bottom:8px}
+.quiz .qres p{font-size:17px;color:#a4abbb;margin-bottom:16px}
+.quiz .qr-use{background:#0f1116;border:1px solid #262a34;border-radius:13px;padding:16px 18px;font-size:16.5px;line-height:1.7}
+.quiz .qr-use b{display:block;font-size:12.5px;font-weight:800;letter-spacing:.1em;color:var(--accent2);margin-bottom:6px}
+.qagain{margin-top:16px;background:#262a34;color:#c8cedb;font-size:14.5px;font-weight:700;padding:10px 18px;border-radius:10px}
+.qagain:hover{background:#333846;color:#fff}
+.qall{margin:0 0 22px}
+.qall summary{cursor:pointer;font-size:15.5px;font-weight:700;color:var(--ink2);padding:11px 0}
+.qall summary:hover{color:var(--ink)}
+
 /* ===== 표 ===== */
 .tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:14px;background:#fff}
 table{border-collapse:collapse;width:100%;font-size:16.5px}
@@ -788,29 +812,58 @@ footer a{color:var(--ink2)}
       <section class="step">
         <span class="eyebrow">TIP 2</span>
         <h2>나는 무슨 유튜버일까</h2>
-        <p class="sum">세 가지만 정하면 <b>내가 설 자리가 좁혀집니다.</b></p>
-        <div class="tw">
-          <table>
-            <tr><th>질문</th><th>둘 중 하나 고르기</th></tr>
-            <tr><td><b>Q1</b></td><td>영상에서 더 중요한 건? — <b>내가 재밌는 사람인가</b> / <b>내용이 유익한가</b></td></tr>
-            <tr><td><b>Q2</b></td><td>더 만들고 싶은 콘텐츠는? — <b>일상·공감형</b> / <b>주제·정보형</b></td></tr>
-            <tr><td><b>Q3</b></td><td>작업 스타일은? — <b>빠르게 자주 올리는 편</b> / <b>공들여 완성도 있게</b></td></tr>
-          </table>
+        <p class="sum">세 번만 고르면 <b>내가 설 자리가 좁혀집니다.</b> 끌리는 쪽으로 눌러 보세요.</p>
+
+        <div class="quiz" id="quiz">
+          <div class="qq" data-q="0">
+            <span class="qn">Q1</span>
+            <b class="qt">영상에서 더 중요한 건?</b>
+            <div class="qo">
+              <button type="button" data-v="0">내가 <b>재밌는 사람</b>인가</button>
+              <button type="button" data-v="1">내용이 <b>유익</b>한가</button>
+            </div>
+          </div>
+          <div class="qq" data-q="1" hidden>
+            <span class="qn">Q2</span>
+            <b class="qt">더 만들고 싶은 콘텐츠는?</b>
+            <div class="qo">
+              <button type="button" data-v="0"><b>일상 · 공감형</b></button>
+              <button type="button" data-v="1"><b>주제 · 정보형</b></button>
+            </div>
+          </div>
+          <div class="qq" data-q="2" hidden>
+            <span class="qn">Q3</span>
+            <b class="qt">작업 스타일은?</b>
+            <div class="qo">
+              <button type="button" data-v="0"><b>빠르게</b> 자주 올리는 편</button>
+              <button type="button" data-v="1"><b>공들여</b> 완성도 있게</button>
+            </div>
+          </div>
+          <div class="qres" id="qres" hidden>
+            <span class="qn">RESULT</span>
+            <h3 id="qr-name"></h3>
+            <p id="qr-desc"></p>
+            <div class="qr-use"><b>쇼핑 쇼츠로 옮기면</b><span id="qr-tip"></span></div>
+            <button type="button" class="qagain" id="qagain">↺ 다시 하기</button>
+          </div>
         </div>
-        <p>세 답의 조합으로 나오는 유형은 여덟 가지예요.</p>
-        <div class="tw">
-          <table>
-            <tr><th>유형</th><th>어떤 사람인가</th></tr>
-            <tr><td><b>자연발생 브이로거형</b></td><td>그냥 찍어도 분위기와 공감이 생기는 타입</td></tr>
-            <tr><td><b>감성 무드필름형</b></td><td>브이로그도 영상미와 디테일에 진심인 타입</td></tr>
-            <tr><td><b>인간 예능형</b></td><td>말빨·리액션·캐릭터가 곧 콘텐츠인 타입</td></tr>
-            <tr><td><b>캐릭터 쇼호스트형</b></td><td>매력과 기획력을 둘 다 챙기는 영업왕 타입</td></tr>
-            <tr><td><b>생활꿀팁 공유형</b></td><td>일상 속 실용 정보를 빠르게 잘 전하는 타입</td></tr>
-            <tr><td><b>공감형 정보정리러</b></td><td>감성에 정보력까지 더한 친절한 설명러 타입</td></tr>
-            <tr><td><b>속전속결 리뷰어형</b></td><td>핵심만 빠르게 짚는 리뷰 특화 타입</td></tr>
-            <tr><td><b>분석형 전문 유튜버</b></td><td>자료 정리와 완성도까지 챙기는 진짜 채널형 타입</td></tr>
-          </table>
-        </div>
+
+        <details class="qall">
+          <summary>유형 8종 한눈에 보기</summary>
+          <div class="tw">
+            <table>
+              <tr><th>유형</th><th>조합</th><th>어떤 사람인가</th></tr>
+              <tr><td><b>자연발생 브이로거형</b></td><td>사람 · 일상 · 빠르게</td><td>그냥 찍어도 분위기와 공감이 생기는 타입</td></tr>
+              <tr><td><b>감성 무드필름형</b></td><td>사람 · 일상 · 공들여</td><td>브이로그도 영상미와 디테일에 진심인 타입</td></tr>
+              <tr><td><b>인간 예능형</b></td><td>사람 · 정보 · 빠르게</td><td>말빨·리액션·캐릭터가 곧 콘텐츠인 타입</td></tr>
+              <tr><td><b>캐릭터 쇼호스트형</b></td><td>사람 · 정보 · 공들여</td><td>매력과 기획력을 둘 다 챙기는 영업왕 타입</td></tr>
+              <tr><td><b>생활꿀팁 공유형</b></td><td>내용 · 일상 · 빠르게</td><td>일상 속 실용 정보를 빠르게 잘 전하는 타입</td></tr>
+              <tr><td><b>공감형 정보정리러</b></td><td>내용 · 일상 · 공들여</td><td>감성에 정보력까지 더한 친절한 설명러 타입</td></tr>
+              <tr><td><b>속전속결 리뷰어형</b></td><td>내용 · 정보 · 빠르게</td><td>핵심만 빠르게 짚는 리뷰 특화 타입</td></tr>
+              <tr><td><b>분석형 전문 유튜버</b></td><td>내용 · 정보 · 공들여</td><td>자료 정리와 완성도까지 챙기는 진짜 채널형 타입</td></tr>
+            </table>
+          </div>
+        </details>
         <div class="key">📌 우리가 하려는 <b>쇼핑 쇼츠는 「속전속결 리뷰어형」에 가장 가깝습니다.</b>
           얼굴 없이, 핵심만, 빠르게. 유형이 다르게 나왔다면 <b>같은 상품이라도 보여주는 방식</b>을 그쪽으로 바꾸면 돼요.</div>
         <div class="tip">💡 유형은 방향만 잡아줍니다. 실제 컨셉은 <a href="./briefing.html">동향 브리핑</a>의 프롬프트로 뽑는 게 빨라요 —
@@ -1011,6 +1064,54 @@ function goTips(){ mode='tips'; dayRender(); window.scrollTo(0,0); }
 dayBtns.forEach(function(b){ b.onclick=function(){ goDay(+b.dataset.go); }; });
 rtodo.onclick=goTodo;
 rtips.onclick=goTips;
+
+/* ================= 💡 유튜버 유형 고르기 (꿀팁 TIP 2) =================
+   원본(인스타)은 눈으로 따라가는 플로차트지만 누르는 재미가 없어 3문항 선택형으로 옮겼다.
+   ⚠️ 원본의 코드(1-a…8-h)는 카드 설명과 어긋나는 조합이 있었다(예: '감성 무드필름형'이
+   빠르게 가지인데 설명은 "영상미·디테일에 진심"). 그래서 설명에 맞춰 3축으로 다시 짰다.
+   순서 = 사람/내용(×4) + 일상/정보(×2) + 빠르게/공들여(×1). 표(.qall)와 순서가 같아야 한다. */
+var QTYPE=[
+ ['자연발생 브이로거형','그냥 찍어도 분위기와 공감이 생기는 타입',
+  '상품 쓰는 장면을 그냥 찍으세요. 설명보다 "쓰는 모습" 자체가 콘텐츠입니다.'],
+ ['감성 무드필름형','브이로그도 영상미와 디테일에 진심인 타입',
+  '상품 하나를 예쁘게 담는 15초. 단, 템플릿을 고정해 편집을 30분 안에 끊으세요.'],
+ ['인간 예능형','말빨·리액션·캐릭터가 곧 콘텐츠인 타입',
+  '리액션이 후킹입니다. 0~2초에 "이거 진짜였네" 같은 반응부터 넣으세요.'],
+ ['캐릭터 쇼호스트형','매력과 기획력을 둘 다 챙기는 영업왕 타입',
+  '고정 멘트·고정 자세를 캐릭터로 만드세요. 매 영상 같은 오프닝이 곧 브랜드입니다.'],
+ ['생활꿀팁 공유형','일상 속 실용 정보를 빠르게 잘 전하는 타입',
+  '"이거 하나로 ○○ 끝" 형식이 맞습니다. 상품이 아니라 해결되는 문제를 앞에 두세요.'],
+ ['공감형 정보정리러','감성에 정보력까지 더한 친절한 설명러 타입',
+  '왜 필요한지부터 짚어주세요. 비교 한 장이 세일즈 멘트보다 잘 먹힙니다.'],
+ ['속전속결 리뷰어형','핵심만 빠르게 짚는 리뷰 특화 타입',
+  '이 페이지의 기본형이에요. 15~30초 · 핵심 3줄 · 손과 상품만.'],
+ ['분석형 전문 유튜버','자료 정리와 완성도까지 챙기는 진짜 채널형 타입',
+  '롱폼 1개(설명란 링크가 살아 있는 쪽) + 쇼츠 여러 개 조합이 제일 강합니다.']
+];
+var qBoxes=[].slice.call(document.querySelectorAll('#quiz .qq')), qpick=[];
+function qshow(step){                 // step = 다음에 답할 문항 번호. 3이면 결과
+  qBoxes.forEach(function(box){
+    var q=+box.dataset.q;
+    box.hidden = q>step;
+    /* 앞 문항을 다시 고르면 뒤 답은 버린다 — 반쯤 남은 선택이 결과를 흐리지 않게 */
+    if(q>=step) [].forEach.call(box.querySelectorAll('button'), function(x){ x.classList.remove('on'); });
+  });
+  $('qres').hidden = step<3;
+  if(step<3) return;
+  var t=QTYPE[qpick[0]*4+qpick[1]*2+qpick[2]];
+  $('qr-name').textContent=t[0]; $('qr-desc').textContent=t[1]; $('qr-tip').textContent=t[2];
+}
+qBoxes.forEach(function(box){
+  [].forEach.call(box.querySelectorAll('button'), function(b){
+    b.onclick=function(){
+      var q=+box.dataset.q;
+      qpick[q]=+b.dataset.v; qpick.length=q+1;
+      qshow(q+1);
+      [].forEach.call(box.querySelectorAll('button'), function(x){ x.classList.toggle('on', x===b); });
+    };
+  });
+});
+$('qagain').onclick=function(){ qpick=[]; qshow(0); };
 rall.onclick=function(){
   mode = mode==='all' ? 'day' : 'all';
   dayRender();
